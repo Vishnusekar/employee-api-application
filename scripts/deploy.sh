@@ -36,10 +36,13 @@ echo "======================================"
 echo "Updating Kubernetes Deployment"
 echo "======================================"
 
-kubectl set image deployment/${APP_NAME} \
-${APP_NAME}=${IMAGE} \
--n "${NAMESPACE}"
-kubectl apply -f ${PROJECT_ROOT}/k8s/
+mkdir -p "${PROJECT_ROOT}/build/manifests"
+sed "s|IMAGE_TAG|${VERSION}|g" \
+    "${PROJECT_ROOT}/k8s/deployment.yaml" \
+    > "${PROJECT_ROOT}/build/manifests/deployment.yaml"
+kubectl apply \
+-f "${PROJECT_ROOT}/build/manifests/deployment.yaml" \
+-f "${PROJECT_ROOT}/k8s/service.yaml"
 
 echo
 echo "======================================"
