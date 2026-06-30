@@ -26,7 +26,7 @@ echo "======================================"
 
 minikube image ls | grep ${APP_NAME} || true
 
-rm -f "${PROJECT_ROOT}/k8s/deployment.generated.yaml"
+rm -f "${PROJECT_ROOT}/k8s/build/manifests/deployment.yaml"
 
 echo
 echo "Cleanup completed."

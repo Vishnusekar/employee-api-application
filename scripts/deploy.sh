@@ -15,6 +15,10 @@ VERSION=$(cat "${PROJECT_ROOT}/VERSION")
 
 IMAGE="${APP_NAME}:${VERSION}"
 
+MANIFEST_DIR="${PROJECT_ROOT}/build/manifests"
+GENERATED_DEPLOYMENT="${MANIFEST_DIR}/deployment.yaml"
+
+
 echo "======================================"
 echo "Building Docker Image"
 echo "======================================"
@@ -36,13 +40,16 @@ echo "======================================"
 echo "Updating Kubernetes Deployment"
 echo "======================================"
 
-mkdir -p "${PROJECT_ROOT}/build/manifests"
+mkdir -p "${MANIFEST_DIR}"
+
 sed "s|IMAGE_TAG|${VERSION}|g" \
     "${PROJECT_ROOT}/k8s/deployment.yaml" \
-    > "${PROJECT_ROOT}/build/manifests/deployment.yaml"
+    > "${GENERATED_DEPLOYMENT}"
+
 kubectl apply \
--f "${PROJECT_ROOT}/build/manifests/deployment.yaml" \
--f "${PROJECT_ROOT}/k8s/service.yaml"
+    -f "${GENERATED_DEPLOYMENT}" \
+    -f "${PROJECT_ROOT}/k8s/service.yaml"
+
 
 echo
 echo "======================================"
