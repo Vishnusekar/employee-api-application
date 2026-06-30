@@ -39,6 +39,7 @@ echo "======================================"
 kubectl set image deployment/${APP_NAME} \
 ${APP_NAME}=${IMAGE} \
 -n "${NAMESPACE}"
+kubectl apply -f ${PROJECT_ROOT}/k8s/
 
 echo
 echo "======================================"
