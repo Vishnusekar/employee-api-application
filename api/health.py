@@ -1,5 +1,4 @@
 from fastapi import APIRouter, Response
-
 from services.state import app_state
 
 router = APIRouter()
