@@ -1,6 +1,24 @@
 # Changelog
 
 ---
+## [1.4.0] - Externalized Configuration & Deployment Pipeline
+
+### Added
+- Kubernetes ConfigMap for application configuration
+- Automatic environment variable injection using envFrom
+- Automated deployment pipeline
+- Deployment validation
+- Smoke test automation
+
+### Changed
+- Application configuration is now externalized from the Docker image.
+- Deployment script generates Kubernetes manifests dynamically.
+- Deployment validation now waits for rollout, deployment availability and pod readiness.
+
+### Fixed
+- Corrected deployment manifest generation.
+- Improved deployment reliability.
+- Simplified deployment verification workflow.
 
 ## [1.3.0] - Kubernetes Health Management
 

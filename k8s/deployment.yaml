@@ -21,6 +21,9 @@ spec:
       containers:
         - name: employee-api
           image: employee-api:IMAGE_TAG
+          envFrom:
+            - configMapRef:
+                name: employee-api-config
           ports:
             - containerPort: 8000
           resources:
@@ -30,9 +33,6 @@ spec:
             limits:
               cpu: "250m"
               memory: "256Mi"
-          env:
-          - name: STARTUP_DELAY
-            value: "30"
           readinessProbe:
             httpGet:
               path: /health/ready

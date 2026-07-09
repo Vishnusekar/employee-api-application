@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: employee-api-config
+  namespace: employee
+data:
+  APP_NAME: "Employee API"
+  ENVIRONMENT: "QA"
+  STARTUP_DELAY: "30"
+  FAIL_AFTER: "0"
