@@ -4,9 +4,10 @@ set -e
 
 # Directory where this script resides
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-
+echo "Script directory: ${SCRIPT_DIR}"
 # Project root (parent of scripts/)
 PROJECT_ROOT="$(dirname "$SCRIPT_DIR")"
+echo "Project root: ${PROJECT_ROOT}"
 
 APP_NAME="employee-api"
 NAMESPACE="employee"
@@ -16,7 +17,9 @@ VERSION=$(cat "${PROJECT_ROOT}/VERSION")
 IMAGE="${APP_NAME}:${VERSION}"
 
 MANIFEST_DIR="${PROJECT_ROOT}/build/manifests"
+echo "Manifest directory: ${MANIFEST_DIR}"
 GENERATED_DEPLOYMENT="${MANIFEST_DIR}/deployment.yaml"
+echo "Generated deployment manifest: ${GENERATED_DEPLOYMENT}"
 
 
 echo "======================================"
@@ -47,8 +50,9 @@ sed "s|IMAGE_TAG|${VERSION}|g" \
     > "${GENERATED_DEPLOYMENT}"
 
 kubectl apply \
-    -f "${GENERATED_DEPLOYMENT}" \
-    -f "${PROJECT_ROOT}/k8s/service.yaml"
+-f "${PROJECT_ROOT}/k8s/configmap.yaml" \
+-f "${GENERATED_DEPLOYMENT}" \
+-f "${PROJECT_ROOT}/k8s/service.yaml"
 
 
 echo
