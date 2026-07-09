@@ -205,3 +205,23 @@ Without looking at the Dockerfile:
 •	Pass different environment variables. 
 •	Stop it. 
 •	Remove it. 
+
+Deployment
+
+./scripts/deploy.sh
+The deployment script performs:
+
+- Build
+- Load
+- Manifest Generation
+- ConfigMap Apply
+- Deployment Apply
+- Service Apply
+- Rollout Verification
+
+Smoke Testing
+
+./scripts/smoke-test.sh
+This script performs 
+- Health Verification
+- Smoke Tests
