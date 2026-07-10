@@ -2,5 +2,5 @@
 __pycache__
 *.pyc
 # Generated Kubernetes manifests
-build/
+build/*
 k8s/secret.yaml
