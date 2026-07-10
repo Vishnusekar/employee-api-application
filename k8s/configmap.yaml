@@ -8,3 +8,6 @@ data:
   ENVIRONMENT: "QA"
   STARTUP_DELAY: "30"
   FAIL_AFTER: "0"
+  DATABASE_HOST: postgres-service
+  DATABASE_PORT: "5432"
+  DATABASE_NAME: employee
