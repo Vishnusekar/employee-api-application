@@ -24,6 +24,8 @@ spec:
           envFrom:
             - configMapRef:
                 name: employee-api-config
+            - secretRef:
+                name: employee-api-secret
           ports:
             - containerPort: 8000
           resources:

@@ -68,16 +68,19 @@ print_header "Applying Kubernetes Resources"
 
 kubectl apply \
     -f "${PROJECT_ROOT}/k8s/configmap.yaml" \
+    -f "${PROJECT_ROOT}/k8s/secret.yaml" \
     -f "${GENERATED_DEPLOYMENT}" \
     -f "${PROJECT_ROOT}/k8s/service.yaml"
 
 #############################################
-# Verify ConfigMap
+# Verifying ConfigMap and Secrets exist
 #############################################
 
 print_header "Verifying ConfigMap"
 
 kubectl get configmap "${APP_NAME}-config" \
+    -n "${NAMESPACE}"
+kubectl get secret "${APP_NAME}-secret" \
     -n "${NAMESPACE}"
 
 #############################################
