@@ -3,7 +3,7 @@ from fastapi import FastAPI
 from api.root import router as root_router
 from api.health import router as health_router
 from api.employees import router as employee_router
-from app.api.database import router as database_router
+from api.database import router as database_router
 
 from services.failure import start_failure_simulation
 from services.startup import initialize_application
