@@ -22,6 +22,7 @@ PROJECT_ROOT="$(dirname "${SCRIPT_DIR}")"
 
 APP_NAME="employee-api"
 NAMESPACE="employee"
+DATABASE_NAME="postgres"
 
 VERSION="$(cat "${PROJECT_ROOT}/VERSION")"
 IMAGE="${APP_NAME}:${VERSION}"
@@ -60,6 +61,17 @@ sed "s|IMAGE_TAG|${VERSION}|g" \
     "${PROJECT_ROOT}/k8s/deployment.yaml" \
     > "${GENERATED_DEPLOYMENT}"
 
+echo "Running image:"
+kubectl get deployment employee-api \
+-n employee \
+-o jsonpath='{.spec.template.spec.containers[0].image}'
+echo
+
+echo "Image ID:"
+kubectl get pod -n employee \
+-o jsonpath='{.items[0].status.containerStatuses[0].imageID}'
+echo
+
 #############################################
 # Apply Resources
 #############################################
@@ -70,7 +82,10 @@ kubectl apply \
     -f "${PROJECT_ROOT}/k8s/configmap.yaml" \
     -f "${PROJECT_ROOT}/k8s/secret.yaml" \
     -f "${GENERATED_DEPLOYMENT}" \
-    -f "${PROJECT_ROOT}/k8s/service.yaml"
+    -f "${PROJECT_ROOT}/k8s/service.yaml" \
+    -f "${PROJECT_ROOT}/k8s/postgres-service.yaml" \
+    -f "${PROJECT_ROOT}/k8s/postgres-deployment.yaml" \
+    -f "${PROJECT_ROOT}/k8s/postgres-pvc.yaml"
 
 #############################################
 # Verifying ConfigMap and Secrets exist
@@ -87,9 +102,14 @@ kubectl get secret "${APP_NAME}-secret" \
 # Wait For Deployment
 #############################################
 
-print_header "Waiting For Rollout"
+print_header "Waiting For Rollout of Employee API Deployment"
 
 kubectl rollout status deployment/"${APP_NAME}" \
+    -n "${NAMESPACE}"
+
+print_header "Waiting For Rollout of Postgres Deployment"
+
+kubectl rollout status deployment/"${DATABASE_NAME}" \
     -n "${NAMESPACE}"
 
 #############################################
@@ -123,7 +143,7 @@ kubectl wait \
 
 print_header "Deployment Summary"
 
-kubectl get deployment "${APP_NAME}" \
+kubectl get deploy  \
     -n "${NAMESPACE}"
 
 echo

@@ -3,7 +3,9 @@ import time
 from config.logging_config import logger
 from config.settings import STARTUP_DELAY
 from services.state import app_state
+from database.init_db import initialize_database
 
+initialize_database()
 
 def initialize_application():
     """

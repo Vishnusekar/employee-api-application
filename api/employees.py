@@ -3,6 +3,7 @@ from fastapi import APIRouter
 from config.logging_config import logger
 from config.settings import ENVIRONMENT
 from data.employees import employees
+from database.crud import get_all_employees
 import socket
 
 router = APIRouter()
@@ -16,4 +17,12 @@ def get_employees():
         ENVIRONMENT,
     )
 
-    return employees
+    employees = get_all_employees()
+    return [
+    {
+        "id": employee.id,
+        "name": employee.name,
+        "department": employee.department
+    }
+    for employee in employees
+]
