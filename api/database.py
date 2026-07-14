@@ -1,5 +1,5 @@
 from fastapi import APIRouter
-from ..database.health import check_database_connection
+from database.health import check_database_connection
 
 router = APIRouter()
 

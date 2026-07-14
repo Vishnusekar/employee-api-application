@@ -1,6 +1,85 @@
 # Changelog
 
 ---
+# Changelog
+
+All notable changes to this project will be documented in this file.
+
+---
+
+## [1.6.2] - 2026-07-11
+
+### Added
+
+- PostgreSQL Deployment
+- PostgreSQL ClusterIP Service
+- Persistent Volume Claim integration
+- PostgreSQL startup, readiness and liveness probes
+- SQLAlchemy dependency
+- PostgreSQL driver (psycopg)
+- Database connection module
+- Database session module
+- Database health check module
+- Temporary database connectivity endpoint
+- Explicit imagePullPolicy in Deployment
+- Improved deployment verification
+
+### Changed
+
+- Standardized project virtual environment
+- Updated deployment workflow to use immutable image versions
+- Improved image version management
+- Improved deployment validation process
+
+### Fixed
+
+- Fixed generated deployment manifest issues
+- Fixed image version rollout problems
+- Fixed relative import issue in database router
+- Fixed CrashLoopBackOff caused by application import failure
+- Fixed multiple virtual environment inconsistencies
+- Improved debugging of rolling deployments
+
+### Platform Concepts Learned
+
+- Stateful workloads
+- Persistent Volumes
+- Persistent Volume Claims
+- StorageClasses
+- PostgreSQL deployment on Kubernetes
+- Native database health probes
+- Immutable container images
+- Rolling update behavior
+- ReplicaSets during deployments
+
+## [1.5.0] - 2026-07-08
+
+### Added
+
+- Kubernetes Secret support
+- Secret manifest template
+- Sensitive configuration externalization
+- Secret-based environment variable injection
+
+### Changed
+
+- Application now reads credentials from Kubernetes Secrets
+- Deployment updated to consume Secret values
+
+### Fixed
+
+- Removed hardcoded sensitive values
+- Improved deployment security
+- Separated application configuration from confidential information
+
+### Platform Concepts Learned
+
+- Kubernetes Secrets
+- Base64 encoding
+- Secure configuration management
+- ConfigMap vs Secret
+- Runtime secret injection
+
 ## [1.4.0] - Externalized Configuration & Deployment Pipeline
 
 ### Added

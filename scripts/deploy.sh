@@ -61,6 +61,17 @@ sed "s|IMAGE_TAG|${VERSION}|g" \
     "${PROJECT_ROOT}/k8s/deployment.yaml" \
     > "${GENERATED_DEPLOYMENT}"
 
+echo "Running image:"
+kubectl get deployment employee-api \
+-n employee \
+-o jsonpath='{.spec.template.spec.containers[0].image}'
+echo
+
+echo "Image ID:"
+kubectl get pod -n employee \
+-o jsonpath='{.items[0].status.containerStatuses[0].imageID}'
+echo
+
 #############################################
 # Apply Resources
 #############################################
