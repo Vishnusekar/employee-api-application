@@ -6,6 +6,59 @@
 All notable changes to this project will be documented in this file.
 
 ---
+## [1.6.3] - 2026-07-11
+
+### Added
+
+- SQLAlchemy ORM integration
+- Employee ORM model
+- Automatic database schema creation during application startup
+- Database CRUD layer (`database/crud.py`)
+- Database-backed Employee API
+- Database-aware readiness verification
+- Automatic Employee table creation using SQLAlchemy metadata
+
+### Changed
+
+- Replaced in-memory employee storage with PostgreSQL
+- Employee API now retrieves data from the database instead of application memory
+- Application startup now initializes the database schema before becoming ready
+- Readiness endpoint now validates database connectivity in addition to application initialization
+
+### Fixed
+
+- Corrected SQLAlchemy package imports
+- Fixed application startup failures caused by relative imports
+- Fixed container image rollout inconsistencies through immutable image versioning
+- Standardized Python virtual environment usage across WSL and VS Code
+- Explicitly configured Kubernetes `imagePullPolicy`
+- Improved deployment reliability during rolling updates
+
+### Removed
+
+- In-memory Employee data store
+- Hardcoded Employee list from the application
+
+### Platform Concepts Learned
+
+- Object Relational Mapping (ORM)
+- SQLAlchemy Declarative Models
+- Database Sessions
+- Automatic Schema Creation
+- CRUD Layer Design
+- Stateful Application Architecture
+- Kubernetes Readiness vs Dependency Availability
+- Immutable Container Images
+- Rolling Update Debugging
+- ReplicaSets during Deployments
+
+### Engineering Milestones
+
+- First stateful application deployment
+- First production-style database integration
+- First application-managed database schema
+- Successfully migrated from volatile in-memory storage to persistent PostgreSQL storage
+- Employee API now persists data across Pod restarts and deployments
 
 ## [1.6.2] - 2026-07-11
 
