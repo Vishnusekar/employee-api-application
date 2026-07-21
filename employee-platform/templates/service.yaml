@@ -1,15 +1,11 @@
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ include "employee-platform.fullname" . }}
-  labels:
-    {{- include "employee-platform.labels" . | nindent 4 }}
+  name: {{ .Release.Name }}
 spec:
   type: {{ .Values.service.type }}
+  selector:
+    app: {{ .Release.Name }}
   ports:
     - port: {{ .Values.service.port }}
-      targetPort: http
-      protocol: TCP
-      name: http
-  selector:
-    {{- include "employee-platform.selectorLabels" . | nindent 4 }}
+      targetPort: {{ .Values.container.port }}
