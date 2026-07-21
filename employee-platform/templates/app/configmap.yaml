@@ -7,6 +7,6 @@ data:
   ENVIRONMENT: {{ .Values.config.environment | quote }}
   STARTUP_DELAY: {{ .Values.config.startupDelay | quote }}
   FAIL_AFTER: {{ .Values.config.failAfter | quote }}
-  DATABASE_HOST: {{ .Values.config.databaseHost | quote }}
+  DATABASE_HOST: {{ .Release.Name }}-postgres-service
   DATABASE_PORT: {{ .Values.config.databasePort | quote }}
   DATABASE_NAME: {{ .Values.config.databaseName | quote }}
