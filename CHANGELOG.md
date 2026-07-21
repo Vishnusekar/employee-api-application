@@ -6,6 +6,71 @@
 All notable changes to this project will be documented in this file.
 
 ---
+## [1.7.0] - 2026-07-21
+
+### Added
+
+- Introduced Helm as the primary deployment mechanism.
+- Created Helm chart (`employee-platform`) for the application.
+- Added templated Kubernetes resources:
+  - Application Deployment
+  - Application Service
+  - PostgreSQL Deployment
+  - PostgreSQL Service
+  - ConfigMap
+  - Secret
+- Introduced environment-specific configuration using:
+  - `values.yaml`
+  - `values-local.yaml`
+  - `values.example.yaml`
+- Added Helm release deployment through `deploy.sh`.
+- Added Helm release status to deployment summary.
+- Added deployment prerequisite validation for:
+  - Docker
+  - kubectl
+  - Helm
+  - Minikube
+- Improved smoke test failure handling and diagnostics.
+
+### Changed
+
+- Migrated deployment workflow from `kubectl apply` to:
+
+  Docker Build
+  → Minikube Image Load
+  → Helm Upgrade/Install
+  → Rollout Validation
+
+- Reorganized Helm values into logical sections:
+  - Application
+  - Service
+  - ConfigMap
+  - Secret
+  - PostgreSQL
+
+- Updated deployment scripts to use Helm releases.
+- Updated smoke test to target Helm-managed services.
+- Updated resource naming to follow Helm release conventions.
+- Standardized PostgreSQL deployment naming.
+- Updated application database discovery using Helm-generated service names.
+- Disabled failure simulation by default (`FAIL_AFTER=0`).
+
+### Migration Notes
+
+- Existing PostgreSQL PersistentVolumeClaim is intentionally reused during the Helm migration.
+- Legacy Kubernetes manifests and deployment scripts have been archived for one release to provide a rollback path.
+- Helm is now the single source of truth for application deployment.
+
+### Fixed
+
+- Removed dependency on generated Kubernetes manifests.
+- Removed image tag substitution using `sed`.
+- Fixed deployment script cleanup logic.
+- Fixed deployment naming consistency across all Kubernetes resources.
+- Improved deployment validation and rollout monitoring.
+
+---
+
 ## [1.6.3] - 2026-07-11
 
 ### Added

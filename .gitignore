@@ -4,3 +4,4 @@ __pycache__
 # Generated Kubernetes manifests
 build/*
 k8s/secret.yaml
+employee-platform/values-local.yaml

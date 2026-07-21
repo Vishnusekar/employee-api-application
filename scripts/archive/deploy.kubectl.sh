@@ -13,13 +13,6 @@ print_header() {
     echo "======================================"
 }
 
-check_command() {
-    command -v "$1" >/dev/null 2>&1 || {
-        echo "ERROR: '$1' is not installed."
-        exit 1
-    }
-}
-
 #############################################
 # Paths
 #############################################
@@ -28,28 +21,17 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_ROOT="$(dirname "${SCRIPT_DIR}")"
 
 APP_NAME="employee-api"
-RELEASE_NAME="employee-platform"
 NAMESPACE="employee"
 DATABASE_NAME="postgres"
 
 VERSION="$(cat "${PROJECT_ROOT}/VERSION")"
 IMAGE="${APP_NAME}:${VERSION}"
 
-HELM_CHART="${PROJECT_ROOT}/${RELEASE_NAME}"
+MANIFEST_DIR="${PROJECT_ROOT}/build/manifests"
+GENERATED_DEPLOYMENT="${MANIFEST_DIR}/deployment.yaml"
 
 #############################################
-# Prerequisites
-#############################################
-
-print_header "Checking Prerequisites"
-
-check_command docker
-check_command kubectl
-check_command helm
-check_command minikube
-
-#############################################
-# Build Docker Image
+# Build Image
 #############################################
 
 print_header "Building Docker Image"
@@ -60,7 +42,7 @@ docker build \
     "${PROJECT_ROOT}"
 
 #############################################
-# Load Image into Minikube
+# Load Image
 #############################################
 
 print_header "Loading Image into Minikube"
@@ -68,32 +50,66 @@ print_header "Loading Image into Minikube"
 minikube image load "${IMAGE}"
 
 #############################################
-# Deploy using Helm
+# Generate Manifest
 #############################################
 
-print_header "Deploying with Helm"
+print_header "Generating Kubernetes Manifest"
 
-helm upgrade --install "${RELEASE_NAME}" \
-    "${HELM_CHART}" \
-    --namespace "${NAMESPACE}" \
-    --create-namespace \
-    -f "${HELM_CHART}/values.yaml" \
-    -f "${HELM_CHART}/values-local.yaml"
+mkdir -p "${MANIFEST_DIR}"
+
+sed "s|IMAGE_TAG|${VERSION}|g" \
+    "${PROJECT_ROOT}/k8s/deployment.yaml" \
+    > "${GENERATED_DEPLOYMENT}"
+
+echo "Running image:"
+kubectl get deployment employee-api \
+-n employee \
+-o jsonpath='{.spec.template.spec.containers[0].image}'
+echo
+
+echo "Image ID:"
+kubectl get pod -n employee \
+-o jsonpath='{.items[0].status.containerStatuses[0].imageID}'
+echo
 
 #############################################
-# Wait For Rollout
+# Apply Resources
+#############################################
+
+print_header "Applying Kubernetes Resources"
+
+kubectl apply \
+    -f "${PROJECT_ROOT}/k8s/configmap.yaml" \
+    -f "${PROJECT_ROOT}/k8s/secret.yaml" \
+    -f "${GENERATED_DEPLOYMENT}" \
+    -f "${PROJECT_ROOT}/k8s/service.yaml" \
+    -f "${PROJECT_ROOT}/k8s/postgres-service.yaml" \
+    -f "${PROJECT_ROOT}/k8s/postgres-deployment.yaml" \
+    -f "${PROJECT_ROOT}/k8s/postgres-pvc.yaml"
+
+#############################################
+# Verifying ConfigMap and Secrets exist
+#############################################
+
+print_header "Verifying ConfigMap"
+
+kubectl get configmap "${APP_NAME}-config" \
+    -n "${NAMESPACE}"
+kubectl get secret "${APP_NAME}-secret" \
+    -n "${NAMESPACE}"
+
+#############################################
+# Wait For Deployment
 #############################################
 
 print_header "Waiting For Rollout of Employee API Deployment"
 
-kubectl rollout status \
-    deployment/"${RELEASE_NAME}" \
+kubectl rollout status deployment/"${APP_NAME}" \
     -n "${NAMESPACE}"
 
 print_header "Waiting For Rollout of Postgres Deployment"
 
-kubectl rollout status \
-    deployment/"${RELEASE_NAME}"-"${DATABASE_NAME}" \
+kubectl rollout status deployment/"${DATABASE_NAME}" \
     -n "${NAMESPACE}"
 
 #############################################
@@ -104,9 +120,9 @@ print_header "Waiting For Deployment Availability"
 
 kubectl wait \
     --for=condition=Available \
-    deployment/"${RELEASE_NAME}" \
+    deployment/"${APP_NAME}" \
     -n "${NAMESPACE}" \
-    --timeout=180s
+    --timeout=120s
 
 #############################################
 # Wait For Pod Ready
@@ -117,40 +133,28 @@ print_header "Waiting For Pod Readiness"
 kubectl wait \
     --for=condition=Ready \
     pod \
-    -l app="${RELEASE_NAME}" \
+    -l app="${APP_NAME}" \
     -n "${NAMESPACE}" \
-    --timeout=180s
+    --timeout=120s
 
 #############################################
 # Deployment Summary
 #############################################
 
-print_header "Helm Release"
+print_header "Deployment Summary"
 
-helm list -n "${NAMESPACE}"
+kubectl get deploy  \
+    -n "${NAMESPACE}"
 
 echo
 
-helm status "${RELEASE_NAME}" -n "${NAMESPACE}"
+kubectl get pods \
+    -n "${NAMESPACE}"
 
-print_header "Deployments"
+echo
 
-kubectl get deploy -n "${NAMESPACE}"
-
-print_header "Pods"
-
-kubectl get pods -n "${NAMESPACE}"
-
-print_header "Services"
-
-kubectl get svc -n "${NAMESPACE}"
+kubectl get svc \
+    -n "${NAMESPACE}"
 
 echo
 echo "Deployment completed successfully."
-
-echo
-read -p "Run smoke tests? (y/n): " choice
-
-if [[ "${choice}" == "y" ]]; then
-    "${SCRIPT_DIR}/smoke-test.sh"
-fi
