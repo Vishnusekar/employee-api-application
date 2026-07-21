@@ -137,6 +137,16 @@ readinessProbe:
     path: /
     port: http
 
+# This is to setup the configmaps more information can be found here: https://kubernetes.io/docs/tasks/configure-pod-container/configure-configmap/
+config:
+  appName: "Employee API"
+  environment: "Development"
+  startupDelay: "30"
+  failAfter: "60"
+  databaseHost: postgres-service
+  databasePort: "5432"
+  databaseName: employee
+
 # This section is for setting up autoscaling more information can be found here: https://kubernetes.io/docs/concepts/workloads/autoscaling/
 autoscaling:
   enabled: false
