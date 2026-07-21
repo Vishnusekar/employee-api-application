@@ -147,6 +147,11 @@ config:
   databasePort: "5432"
   databaseName: employee
 
+# This is to setup the secrets more information can be found here: https://kubernetes.io/docs/concepts/configuration/secret/
+secret:
+  databaseUser: "<CHANGE_ME>"
+  databasePassword: "<CHANGE_ME>"
+
 # This section is for setting up autoscaling more information can be found here: https://kubernetes.io/docs/concepts/workloads/autoscaling/
 autoscaling:
   enabled: false

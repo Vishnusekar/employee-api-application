@@ -16,4 +16,5 @@ spec:
       - name: {{ .Release.Name }}
         image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
         imagePullPolicy: {{ .Values.image.pullPolicy }}
-        containerPort: {{ .Values.container.port }}
+        ports:
+          - containerPort: {{ .Values.container.port }}
