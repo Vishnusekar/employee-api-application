@@ -27,7 +27,7 @@ spec:
             - secretRef:
                 name: {{ .Release.Name }}-secret
           ports:
-            - containerPort: {{ .Values.app.container.port }}
+            - containerPort: {{ .Values.app.image.container.port }}
           resources:
             requests:
               cpu: "100m"
@@ -38,7 +38,7 @@ spec:
           readinessProbe:
             httpGet:
               path: /health/ready
-              port: {{ .Values.app.container.port }}
+              port: {{ .Values.app.image.container.port }}
             initialDelaySeconds: 0
             periodSeconds: 5
             timeoutSeconds: 2
@@ -47,7 +47,7 @@ spec:
           livenessProbe:
             httpGet:
               path: /health/live
-              port: {{ .Values.app.container.port }}
+              port: {{ .Values.app.image.container.port }}
             initialDelaySeconds: 45
             periodSeconds: 10
             timeoutSeconds: 2
@@ -55,7 +55,7 @@ spec:
           startupProbe:
             httpGet:
               path: /health/ready
-              port: {{ .Values.app.container.port }}
+              port: {{ .Values.app.image.container.port }}
             initialDelaySeconds: 0
             periodSeconds: 5
             timeoutSeconds: 2

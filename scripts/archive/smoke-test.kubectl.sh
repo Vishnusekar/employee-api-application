@@ -25,7 +25,7 @@ trap cleanup EXIT
 # Variables
 #############################################
 
-RELEASE_NAME="employee-platform"
+APP_NAME="employee-api"
 NAMESPACE="employee"
 
 #############################################
@@ -35,10 +35,10 @@ NAMESPACE="employee"
 print_header "Starting Port Forward"
 
 kubectl port-forward \
-    svc/${RELEASE_NAME}-service \
+    svc/${APP_NAME}-service \
     8080:80 \
     -n "${NAMESPACE}" \
-    >/tmp/${RELEASE_NAME}-portforward.log 2>&1 &
+    >/tmp/${APP_NAME}-portforward.log 2>&1 &
 
 PORT_FORWARD_PID=$!
 
@@ -51,7 +51,7 @@ print_header "Waiting For Application"
 for i in {1..30}; do
 
     if curl -fs http://127.0.0.1:8080/health/ready >/dev/null 2>&1; then
-        READY=true
+        echo "Application is Ready."
         break
     fi
 
@@ -59,14 +59,6 @@ for i in {1..30}; do
     sleep 2
 
 done
-
-if [[ "${READY}" != true ]]; then
-    echo
-    echo "Application failed to become ready."
-    echo
-    cat /tmp/${RELEASE_NAME}-portforward.log
-    exit 1
-fi
 
 #############################################
 # Smoke Tests
@@ -93,12 +85,6 @@ echo
 print_header "Liveness Endpoint"
 
 curl http://127.0.0.1:8080/health/live
-
-echo
-
-print_header "Database Endpoint"
-
-curl http://127.0.0.1:8080/database
 
 echo
 

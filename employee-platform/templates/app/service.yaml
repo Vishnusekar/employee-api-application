@@ -8,4 +8,4 @@ spec:
     app: {{ .Release.Name }}
   ports:
     - port: {{ .Values.service.port }}
-      targetPort: {{ .Values.container.port }}
+      targetPort: {{ .Values.app.image.container.port }}
