@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}
+  name: {{ include "employee-platform.fullname" . }}
 spec:
   replicas: {{ .Values.app.replicaCount }}
   strategy:
@@ -11,21 +11,21 @@ spec:
       maxUnavailable: 0
   selector:
     matchLabels:
-      app: {{ .Release.Name }}
+      app: {{ include "employee-platform.fullname" . }}
   template:
     metadata:
       labels:
-        app: {{ .Release.Name }}
+        app: {{ include "employee-platform.fullname" . }}
     spec:
       containers:
-        - name: {{ .Release.Name }}
+        - name: {{ include "employee-platform.fullname" . }}
           image: "{{ .Values.app.image.repository }}:{{ .Values.app.image.tag }}"
           imagePullPolicy: {{ .Values.app.image.pullPolicy }}
           envFrom:
             - configMapRef:
-                name: {{ .Release.Name }}-config
+                name: {{ printf "%s-config" (include "employee-platform.fullname" .) }}
             - secretRef:
-                name: {{ .Release.Name }}-secret
+                name: {{ printf "%s-secret" (include "employee-platform.fullname" .) }}
           ports:
             - containerPort: {{ .Values.app.image.container.port }}
           resources:

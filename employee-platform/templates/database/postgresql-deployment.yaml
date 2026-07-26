@@ -1,16 +1,16 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-postgres
+  name: {{ include "employee-platform.postgres.fullname" . }}
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: {{ .Release.Name }}-postgres
+      app: {{ include "employee-platform.postgres.fullname" . }}
   template:
     metadata:
       labels:
-        app: {{ .Release.Name }}-postgres
+        app: {{ include "employee-platform.postgres.fullname" . }}
     spec:
       containers:
         - name: postgres
@@ -22,17 +22,17 @@ spec:
             - name: POSTGRES_DB
               valueFrom:
                 configMapKeyRef:
-                  name: {{ .Release.Name }}-config
+                  name: {{ printf "%s-config" (include "employee-platform.fullname" .) }}
                   key: DATABASE_NAME
             - name: POSTGRES_USER
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Release.Name }}-secret
+                  name: {{ printf "%s-secret" (include "employee-platform.fullname" .) }}
                   key: DATABASE_USERNAME
             - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Release.Name }}-secret
+                  name: {{ printf "%s-secret" (include "employee-platform.fullname" .) }}
                   key: DATABASE_PASSWORD
           resources:
             requests:
