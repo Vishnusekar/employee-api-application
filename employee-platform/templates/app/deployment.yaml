@@ -2,6 +2,8 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ include "employee-platform.fullname" . }}
+  labels:
+    {{- include "employee-platform.labels" (dict "root" . "component" "api") | nindent 4 }}
 spec:
   replicas: {{ .Values.app.replicaCount }}
   strategy:
@@ -11,11 +13,11 @@ spec:
       maxUnavailable: 0
   selector:
     matchLabels:
-      app: {{ include "employee-platform.fullname" . }}
+      {{- include "employee-platform.selectorLabels" (dict "root" . "component" "api") | nindent 6 }}
   template:
     metadata:
       labels:
-        app: {{ include "employee-platform.fullname" . }}
+        {{- include "employee-platform.selectorLabels" (dict "root" . "component" "api") | nindent 8 }}
     spec:
       containers:
         - name: {{ include "employee-platform.fullname" . }}
