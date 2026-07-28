@@ -37,6 +37,9 @@ IMAGE="${APP_NAME}:${VERSION}"
 
 HELM_CHART="${PROJECT_ROOT}/${RELEASE_NAME}"
 
+APP_SELECTOR="app.kubernetes.io/instance=${RELEASE_NAME},app.kubernetes.io/component=api"
+DB_SELECTOR="app.kubernetes.io/instance=${RELEASE_NAME},app.kubernetes.io/component=database"
+
 #############################################
 # Prerequisites
 #############################################
@@ -117,7 +120,7 @@ print_header "Waiting For Pod Readiness"
 kubectl wait \
     --for=condition=Ready \
     pod \
-    -l app="${RELEASE_NAME}" \
+    -l "${APP_SELECTOR}" \
     -n "${NAMESPACE}" \
     --timeout=180s
 
