@@ -1,7 +1,9 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}
+  name: {{ include "employee-platform.fullname" . }}
+  labels:
+    {{- include "employee-platform.labels" (dict "root" . "component" "api") | nindent 4 }}
 spec:
   replicas: {{ .Values.app.replicaCount }}
   strategy:
@@ -11,21 +13,21 @@ spec:
       maxUnavailable: 0
   selector:
     matchLabels:
-      app: {{ .Release.Name }}
+      {{- include "employee-platform.selectorLabels" (dict "root" . "component" "api") | nindent 6 }}
   template:
     metadata:
       labels:
-        app: {{ .Release.Name }}
+        {{- include "employee-platform.selectorLabels" (dict "root" . "component" "api") | nindent 8 }}
     spec:
       containers:
-        - name: {{ .Release.Name }}
+        - name: {{ include "employee-platform.fullname" . }}
           image: "{{ .Values.app.image.repository }}:{{ .Values.app.image.tag }}"
           imagePullPolicy: {{ .Values.app.image.pullPolicy }}
           envFrom:
             - configMapRef:
-                name: {{ .Release.Name }}-config
+                name: {{ printf "%s-config" (include "employee-platform.fullname" .) }}
             - secretRef:
-                name: {{ .Release.Name }}-secret
+                name: {{ printf "%s-secret" (include "employee-platform.fullname" .) }}
           ports:
             - containerPort: {{ .Values.app.image.container.port }}
           resources:

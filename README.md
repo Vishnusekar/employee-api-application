@@ -32,7 +32,7 @@ The goal is to build every component incrementally while following engineering p
 
 Current Release:
 
-> **v1.7.0 – Helm Migration**
+> **v1.8.0 – Helm Best Practices**
 
 ---
 
@@ -296,7 +296,8 @@ Run smoke tests
 | 1.4 | PostgreSQL Integration |
 | 1.5 | Persistent Storage |
 | 1.6 | Deployment Automation |
-| **1.7** | **Helm Migration** |
+| 1.7 | Helm Migration |
+| **1.8** | **Helm Best Practices** |
 
 ---
 
@@ -313,11 +314,11 @@ Run smoke tests
 - Health Probes
 - Bash Automation
 - Helm
+- Helm Best Practices
+- Helm Helper Templates
 
 ## Planned
 
-- Helm Best Practices
-- Helm Helper Templates
 - Ingress
 - Prometheus
 - Grafana

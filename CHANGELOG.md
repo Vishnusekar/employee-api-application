@@ -6,6 +6,20 @@
 All notable changes to this project will be documented in this file.
 
 ---
+## [1.8.0] - 2026-07-28 – Helm Best Practices
+
+Highlights
+
+• Refactored helper templates
+• Introduced parameterized helper API
+• Adopted Kubernetes recommended labels
+• Added component-aware selectors
+• Eliminated selector collisions
+• Added installation notes (NOTES.txt)
+• Improved deployment automation
+• Added values.schema.json validation
+• Enhanced chart maintainability and operator experience
+
 ## [1.7.0] - 2026-07-21
 
 ### Added

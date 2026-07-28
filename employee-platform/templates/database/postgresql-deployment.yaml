@@ -1,16 +1,18 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-postgres
+  name: {{ include "employee-platform.postgres.fullname" . }}
+  labels:
+    {{- include "employee-platform.labels" (dict "root" . "component" "database") | nindent 4 }}
 spec:
   replicas: 1
   selector:
     matchLabels:
-      app: {{ .Release.Name }}-postgres
+      {{- include "employee-platform.selectorLabels" (dict "root" . "component" "database") | nindent 6 }}
   template:
     metadata:
       labels:
-        app: {{ .Release.Name }}-postgres
+        {{- include "employee-platform.selectorLabels" (dict "root" . "component" "database") | nindent 8 }}
     spec:
       containers:
         - name: postgres
@@ -22,17 +24,17 @@ spec:
             - name: POSTGRES_DB
               valueFrom:
                 configMapKeyRef:
-                  name: {{ .Release.Name }}-config
+                  name: {{ printf "%s-config" (include "employee-platform.fullname" .) }}
                   key: DATABASE_NAME
             - name: POSTGRES_USER
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Release.Name }}-secret
+                  name: {{ printf "%s-secret" (include "employee-platform.fullname" .) }}
                   key: DATABASE_USERNAME
             - name: POSTGRES_PASSWORD
               valueFrom:
                 secretKeyRef:
-                  name: {{ .Release.Name }}-secret
+                  name: {{ printf "%s-secret" (include "employee-platform.fullname" .) }}
                   key: DATABASE_PASSWORD
           resources:
             requests:
