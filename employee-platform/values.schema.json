@@ -72,6 +72,26 @@
 
     },
 
+    "ingress": {
+      
+      "type": "object",
+      
+      "properties": {
+
+        "enabled": {
+          "type": "boolean"
+        },
+
+        "className": {
+          "type": "string"
+        },
+
+        "host": {
+          "type": "string"
+        }
+      }
+    },
+
     "postgres": {
 
       "type": "object",
