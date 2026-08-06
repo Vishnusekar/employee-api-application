@@ -70,6 +70,14 @@ ingress:
       paths:
         - path: /
           pathType: Prefix
+        - path: /docs
+          pathType: Prefix
+        - path: /openapi.json
+          pathType: Prefix
+        - path: /health
+          pathType: Prefix
+        - path: /employees
+          pathType: Prefix
 
 # -- Expose the service via gateway-api HTTPRoute
 # Requires Gateway API resources and suitable controller installed within the cluster
