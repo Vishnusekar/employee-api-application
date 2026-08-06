@@ -6,6 +6,28 @@
 All notable changes to this project will be documented in this file.
 
 ---
+## Release 1.9.0 - 2026-08-06 - Kubernetes Enterprise Networking
+
+### Added
+
+- NGINX Ingress Controller
+- Host-based routing
+- Path-based routing
+- TLS support
+- HTTPS
+- HTTP → HTTPS redirect
+- Multi-host support
+- SAN certificate generation
+
+### Changed
+
+- Networking model migrated from NodePort to Ingress
+
+### Security
+
+- TLS termination
+- HTTPS endpoints
+
 ## [1.8.0] - 2026-07-28 – Helm Best Practices
 
 Highlights
