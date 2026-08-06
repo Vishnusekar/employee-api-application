@@ -78,6 +78,14 @@ ingress:
           pathType: Prefix
         - path: /employees
           pathType: Prefix
+    - host: api.local
+      paths:
+        - path: /
+          pathType: Prefix
+    - host: dev.employee.local
+      paths:
+        - path: /
+          pathType: Prefix
 
 # -- Expose the service via gateway-api HTTPRoute
 # Requires Gateway API resources and suitable controller installed within the cluster
