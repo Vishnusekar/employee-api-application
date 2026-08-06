@@ -86,6 +86,13 @@ ingress:
       paths:
         - path: /
           pathType: Prefix
+  tls:
+    enabled: true
+    secretName: employee-platform-tls
+    hosts:
+      - employee.local
+      - api.local
+      - dev.employee.local    
 
 # -- Expose the service via gateway-api HTTPRoute
 # Requires Gateway API resources and suitable controller installed within the cluster
