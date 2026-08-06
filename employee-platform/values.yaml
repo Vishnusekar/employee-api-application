@@ -63,20 +63,36 @@ service:
 
 # This block is for setting up the ingress for more information can be found here: https://kubernetes.io/docs/concepts/services-networking/ingress/
 ingress:
-  enabled: false
-  className: ""
-  annotations: {}
-    # kubernetes.io/ingress.class: nginx
-    # kubernetes.io/tls-acme: "true"
-  hosts:
-    - host: chart-example.local
+  enabled: true
+  className: nginx
+  hosts: 
+    - host: employee.local
       paths:
         - path: /
-          pathType: ImplementationSpecific
-  tls: []
-  #  - secretName: chart-example-tls
-  #    hosts:
-  #      - chart-example.local
+          pathType: Prefix
+        - path: /docs
+          pathType: Prefix
+        - path: /openapi.json
+          pathType: Prefix
+        - path: /health
+          pathType: Prefix
+        - path: /employees
+          pathType: Prefix
+    - host: api.local
+      paths:
+        - path: /
+          pathType: Prefix
+    - host: dev.employee.local
+      paths:
+        - path: /
+          pathType: Prefix
+  tls:
+    enabled: true
+    secretName: employee-platform-tls
+    hosts:
+      - employee.local
+      - api.local
+      - dev.employee.local    
 
 # -- Expose the service via gateway-api HTTPRoute
 # Requires Gateway API resources and suitable controller installed within the cluster
