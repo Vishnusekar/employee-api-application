@@ -1,4 +1,5 @@
 from fastapi import FastAPI
+from prometheus_fastapi_instrumentator import Instrumentator
 
 from api.root import router as root_router
 from api.health import router as health_router
@@ -9,6 +10,7 @@ from services.failure import start_failure_simulation
 from services.startup import initialize_application
 
 app = FastAPI()
+Instrumentator().instrument(app).expose(app)
 
 initialize_application()
 
