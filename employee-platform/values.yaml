@@ -206,3 +206,12 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+
+# Prometheus ServiceMonitor configuration
+monitoring:
+  serviceMonitor:
+    enabled: true
+    interval: 15s
+    path: /metrics
+    labels:
+      release: monitoring

@@ -9,5 +9,6 @@ spec:
   selector:
     {{- include "employee-platform.selectorLabels" (dict "root" . "component" "api") | nindent 4 }}
   ports:
-    - port: {{ .Values.service.port }}
+    - name: http
+      port: {{ .Values.service.port }}
       targetPort: {{ .Values.app.image.container.port }}

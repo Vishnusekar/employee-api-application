@@ -1,6 +1,20 @@
 grafana:
   adminPassword: admin123
 
+  persistence:
+    enabled: true
+    type: pvc
+    size: 1Gi
+    accessModes:
+      - ReadWriteOnce
+
+  grafana.ini:
+    smtp:
+      enabled: true
+      host: mailpit.monitoring.svc.cluster.local:1025
+      from_address: grafana@example.com
+      from_name: Grafana
+
 prometheus:
   prometheusSpec:
     retention: 15d
