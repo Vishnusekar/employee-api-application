@@ -1,3 +1,5 @@
+from contextlib import asynccontextmanager
+
 from fastapi import FastAPI
 from prometheus_fastapi_instrumentator import Instrumentator
 
@@ -9,12 +11,18 @@ from api.database import router as database_router
 from services.failure import start_failure_simulation
 from services.startup import initialize_application
 
-app = FastAPI()
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    initialize_application()
+    start_failure_simulation()
+
+    yield
+
+
+app = FastAPI(lifespan=lifespan)
+
 Instrumentator().instrument(app).expose(app)
-
-initialize_application()
-
-start_failure_simulation()
 
 app.include_router(root_router)
 app.include_router(employee_router)
