@@ -5,6 +5,63 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.0.0] - 2026-08-28 – Observability & Alerting
+
+### Added
+
+- Introduced Prometheus monitoring using `kube-prometheus-stack`.
+- Added Grafana for application and Kubernetes observability.
+- Added persistent Grafana storage using a PersistentVolumeClaim.
+- Added Grafana SMTP configuration for alert notifications.
+- Added Mailpit for local email notification testing.
+- Added operational dashboard for the Employee API.
+- Added HTTP request/error-rate monitoring.
+- Added HTTP status-code monitoring.
+- Added P95 HTTP request latency monitoring.
+- Added pod/container restart monitoring.
+- Added OOM-kill monitoring.
+- Added container memory utilization monitoring.
+- Added Grafana alert rules for:
+  - High HTTP error rate
+  - High P95 latency
+  - Container restarts
+  - High memory utilization
+- Added JSON exports for Grafana dashboards, alert rules and contact points.
+- Added monitoring configuration to the Git repository.
+
+### Changed
+
+- Extended the platform from deployment and networking into operational monitoring.
+- Grafana data is now persisted across Pod restarts through a PVC.
+- Added email-based alert notification workflow through Mailpit for local development and testing.
+
+### Validation
+
+- Verified Prometheus collection of Employee API metrics.
+- Verified Grafana dashboard panels using live application traffic.
+- Generated controlled 4xx traffic to validate error-rate and status-code monitoring.
+- Generated application traffic to validate request latency metrics.
+- Tested alert lifecycle from Pending/Firing through Recovery.
+- Verified email delivery of Grafana alerts through Mailpit.
+- Verified Grafana data persistence after Pod restart.
+
+### Platform Concepts Learned
+
+- Prometheus metrics
+- Prometheus queries (PromQL)
+- Grafana dashboards
+- Grafana alerting
+- Histogram metrics and percentile calculations
+- HTTP error-rate monitoring
+- Kubernetes workload metrics
+- Container memory monitoring
+- Container restart detection
+- OOM-kill detection
+- Alert lifecycle and recovery
+- SMTP-based alert notification
+- Persistent Grafana storage
+- Observability-driven troubleshooting
+
 ---
 ## Release 1.9.0 - 2026-08-06 - Kubernetes Enterprise Networking
 

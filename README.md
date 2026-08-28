@@ -110,7 +110,9 @@ This mirrors how engineering teams gradually mature production platforms instead
 
 # 🚀 Current Release
 
-## **v1.9.0 — Secure Networking Platform**
+## **v2.0.0 — Observability & Alerting**
+
+Release 2.0 extends the platform from securely deploying and exposing applications to actively monitoring and operating them.
 
 Current platform capabilities include:
 
@@ -131,8 +133,22 @@ Current platform capabilities include:
 - ✅ TLS Termination
 - ✅ HTTPS Support
 - ✅ Automatic HTTP → HTTPS Redirection
+- ✅ Prometheus Monitoring
+- ✅ Grafana Dashboards
+- ✅ Application Metrics
+- ✅ Kubernetes Workload Metrics
+- ✅ HTTP Error-rate Monitoring
+- ✅ HTTP Status-code Monitoring
+- ✅ P95 Latency Monitoring
+- ✅ Container Restart Monitoring
+- ✅ OOM-kill Monitoring
+- ✅ Container Memory Monitoring
+- ✅ Grafana Alerting
+- ✅ Email Alert Notifications
+- ✅ Mailpit-based Alert Testing
+- ✅ Persistent Grafana Storage
 
-The project now represents a complete production-inspired deployment pipeline from source code to secure application exposure.
+The project now represents a complete production-inspired deployment and monitoring workflow from source code to secure application exposure and operational alerting.
 
 ---
 
@@ -185,12 +201,20 @@ The project focuses on implementing production-inspired capabilities across mult
 - TLS Certificates
 - Secure Application Exposure
 
+### Observability
+
+- Prometheus Metrics
+- Application Metrics
+- Kubernetes Workload Metrics
+- Grafana Dashboards
+- Grafana Alerting
+- SMTP Email Notifications
+- Persistent Grafana Storage
+
 ### Future Platform Capabilities
 
-- Observability
-- Metrics
-- Dashboards
-- Alerting
+- Structured Logging
+- Centralized Log Collection
 - GitOps
 - CI/CD
 - Infrastructure as Code
@@ -222,8 +246,19 @@ The project focuses on implementing production-inspired capabilities across mult
 | Path-based Routing | ✅ |
 | TLS / HTTPS | ✅ |
 | HTTP → HTTPS Redirect | ✅ |
-| Prometheus Monitoring | 🚧 |
-| Grafana Dashboards | 🚧 |
+| Prometheus Monitoring | ✅ |
+| Grafana Dashboards | ✅ |
+| Application Metrics | ✅ |
+| Kubernetes Workload Metrics | ✅ |
+| HTTP Error-rate Monitoring | ✅ |
+| HTTP Status-code Monitoring | ✅ |
+| P95 Latency Monitoring | ✅ |
+| Container Restart Monitoring | ✅ |
+| OOM-kill Monitoring | ✅ |
+| Container Memory Monitoring | ✅ |
+| Grafana Alerting | ✅ |
+| Email Alert Notifications | ✅ |
+| Persistent Grafana Storage | ✅ |
 | Structured Logging | 🚧 |
 | GitHub Actions CI/CD | 🚧 |
 | Terraform IaC | 🚧 |
@@ -292,9 +327,26 @@ The project focuses on implementing production-inspired capabilities across mult
                                           │
 
                               Persistent Volume Claim
+
+
+                                  /metrics
+                                      │
+                                      ▼
+                                  Prometheus
+                                      │
+                                      ▼
+                                   Grafana
+                                  /       \
+                         Dashboards       Alerts
+                                           │
+                                           ▼
+                                      Mailpit SMTP
+                                           │
+                                           ▼
+                                      Email Alerts
 ```
 
-This architecture represents the platform as of **Release v1.9**, where applications are securely exposed through an NGINX Ingress Controller using host-based routing, path-based routing and TLS termination.
+This architecture represents the platform as of **Release v2.0**, where applications are securely exposed through an NGINX Ingress Controller and monitored using Prometheus and Grafana. Grafana provides operational dashboards and alerting, while Mailpit provides a local SMTP endpoint for validating email notifications.
 
 ---
 
@@ -311,6 +363,9 @@ This architecture represents the platform as of **Release v1.9**, where applicat
 | Orchestration | Kubernetes |
 | Package Management | Helm |
 | Ingress Controller | NGINX Ingress |
+| Metrics Collection | Prometheus |
+| Visualization & Alerting | Grafana |
+| Email Alert Testing | Mailpit |
 | Local Kubernetes | Minikube |
 | Automation | Bash |
 | Version Control | Git |
@@ -434,6 +489,67 @@ Current networking capabilities include:
 
 ---
 
+## 📊 Observability & Alerting
+
+Release **v2.0** introduced operational monitoring for the Employee API and its Kubernetes workload.
+
+### Metrics
+
+- Prometheus metrics collection
+- Employee API application metrics
+- Kubernetes workload metrics
+- HTTP request rate monitoring
+- HTTP error-rate monitoring
+- HTTP status-code visibility
+- Request latency monitoring
+- P95 latency calculation
+- Pod/container restart metrics
+- OOM-kill visibility
+- Container memory utilization
+
+### Grafana
+
+- Employee API operational dashboard
+- Application performance panels
+- Error-rate panels
+- Status-code panels
+- P95 latency panel
+- Container/pod restart panel
+- OOM-kill panel
+- Memory utilization panel
+- Persistent Grafana storage using a PVC
+
+### Alerting
+
+Grafana alert rules were created and tested for:
+
+- High HTTP error rate
+- High P95 latency
+- Container restarts
+- High memory utilization
+
+Alert notifications are delivered through SMTP to **Mailpit**, allowing the complete alert lifecycle to be tested locally.
+
+The alerting workflow was validated through controlled traffic and failure scenarios, including:
+
+```text
+Normal
+   ↓
+Pending
+   ↓
+Firing
+   ↓
+Email Notification
+   ↓
+Condition Clears
+   ↓
+Recovered
+```
+
+Dashboard definitions, alert rules and contact-point configuration are exported as JSON and maintained in Git alongside the monitoring Helm configuration.
+
+---
+
 # 📂 Repository Structure
 
 The repository follows a production-inspired layout that separates application code, Kubernetes resources, Helm templates and deployment automation.
@@ -473,6 +589,18 @@ employee-platform/
 │   ├── deploy.sh
 │   ├── smoke-test.sh
 │   └── cleanup.sh
+│
+├── platform/
+│   ├── mailpit/
+│   │   ├── deployment.yaml
+│   │   └── service.yaml
+│   │
+│   └── monitoring/
+│       ├── values.yaml
+│       ├── default-values.yaml
+│       ├── alert-rules-grafana.json
+│       ├── contact-points.json
+│       └── dashboards/
 │
 ├── Dockerfile
 ├── VERSION
@@ -578,6 +706,9 @@ The platform currently provisions the following Kubernetes resources.
 | Secret | Database Credentials |
 | PersistentVolumeClaim | PostgreSQL Data |
 | Ingress | Secure Application Exposure |
+| Monitoring Stack | Prometheus & Grafana |
+| Grafana PVC | Persistent Grafana Data |
+| Mailpit Service | Local SMTP Alert Testing |
 
 ---
 
@@ -838,7 +969,11 @@ Security
 
 ↓
 
-Observability (Next)
+Observability
+
+↓
+
+CI/CD (Next)
 ```
 
 Rather than introducing all technologies simultaneously, the platform evolves in small, understandable steps that closely resemble how production engineering teams mature their internal platforms.
@@ -1172,6 +1307,21 @@ Every release is validated using multiple layers of verification.
 
 ---
 
+## Observability
+
+- Prometheus metric collection
+- Grafana dashboard validation
+- HTTP error-rate validation
+- HTTP status-code validation
+- P95 latency validation
+- Container restart alert validation
+- Memory alert validation
+- Alert firing and recovery
+- Email notification through Mailpit
+- Grafana persistence across Pod restarts
+
+---
+
 # 📈 Release Journey
 
 The platform has been intentionally built through progressive releases.
@@ -1188,6 +1338,7 @@ The platform has been intentionally built through progressive releases.
 | **1.7** | Helm Migration |
 | **1.8** | Helm Best Practices & Chart Refactoring |
 | **1.9** | Ingress, Host Routing, TLS & HTTPS |
+| **2.0** | Prometheus, Grafana, Dashboards & Alerting |
 
 ---
 
@@ -1224,6 +1375,32 @@ Major additions included:
 - Multi-host SAN Certificates
 
 The platform is now securely exposed through an Ingress Controller instead of relying solely on NodePort Services.
+
+---
+
+## Release 2.0
+
+Observability and alerting were introduced.
+
+Major additions included:
+
+- Prometheus monitoring
+- Grafana dashboards
+- Employee API application metrics
+- Kubernetes workload metrics
+- HTTP error-rate monitoring
+- HTTP status-code monitoring
+- P95 latency monitoring
+- Container restart monitoring
+- OOM-kill monitoring
+- Container memory monitoring
+- Grafana alert rules
+- SMTP email notifications
+- Mailpit email testing
+- Persistent Grafana storage
+- Dashboard, alert-rule and contact-point JSON maintained in Git
+
+Alert rules were validated using controlled application traffic and failure scenarios, including verification of both alert firing and recovery notifications.
 
 ---
 
@@ -1268,17 +1445,25 @@ The following screenshots will be added as the project evolves.
 
 ---
 
-## Future Releases
-
-The following screenshots will be added during Release 2.x.
+## Observability
 
 - Prometheus Targets
 - Grafana Dashboards
-- Metrics
-- Alerts
+- Application Metrics
+- Alert Rules
+- Alert Firing and Recovery
+- Mailpit Email Notifications
+
+---
+
+## Future Releases
+
+Additional screenshots will be added as future platform capabilities are implemented.
+
 - GitHub Actions Pipeline
 - Terraform Apply
 - ArgoCD Dashboard
+- Centralized Logging
 
 ---
 
@@ -1286,19 +1471,21 @@ The following screenshots will be added during Release 2.x.
 
 Current Platform Components
 
-| Component | Count |
-|-----------|------:|
-| Docker Images | 2 |
-| Kubernetes Deployments | 2 |
-| Kubernetes Services | 2 |
-| Ingress Resources | 1 |
-| ConfigMaps | 1 |
-| Secrets | 2 |
-| Persistent Volume Claims | 1 |
-| Helm Charts | 1 |
-| Deployment Scripts | 3 |
+| Component | Status |
+|-----------|--------|
+| Dockerized Application | ✅ |
+| PostgreSQL | ✅ |
+| Kubernetes Platform | ✅ |
+| NGINX Ingress | ✅ |
+| TLS / HTTPS | ✅ |
+| Helm Chart | ✅ |
+| Prometheus | ✅ |
+| Grafana | ✅ |
+| Grafana Persistent Storage | ✅ |
+| Mailpit | ✅ |
+| Grafana Alerting | ✅ |
 
-These numbers will continue to evolve as new capabilities are introduced throughout future releases.
+These capabilities will continue to evolve as new platform releases are introduced.
 
 ---
 
@@ -1314,41 +1501,63 @@ Rather than attempting to implement every Kubernetes capability at once, the pla
 
 Release **2.0** shifts the focus from **building and exposing** applications to **operating** them.
 
-The objective is to transform the platform into an environment that can be monitored, measured and troubleshot in real time.
+The platform now provides operational visibility into the Employee API and its Kubernetes workload.
 
-## Planned Features
+## Implemented
 
 ### 📈 Observability
 
 - Prometheus
 - Application Metrics
-- Custom Metrics
-- Kubernetes Metrics
-- Node Metrics
+- Kubernetes Workload Metrics
+- HTTP Request Metrics
+- HTTP Error-rate Monitoring
+- HTTP Status-code Monitoring
+- Request Latency Monitoring
+- P95 Latency Monitoring
 
 ### 📊 Visualization
 
 - Grafana
-- Operational Dashboards
-- Resource Utilization
-- Application Performance
-- Kubernetes Health
+- Employee API Operational Dashboard
+- Application Performance Panels
+- Resource Utilization Panels
+- Restart and OOM-kill Visibility
 
 ### 🚨 Alerting
 
-- AlertManager
-- CPU Alerts
-- Memory Alerts
-- Pod Restart Alerts
-- Database Health Alerts
+- Grafana Alerting
+- High Error-rate Alert
+- High P95 Latency Alert
+- Container Restart Alert
+- High Memory Alert
+- Email Notifications
+- Mailpit SMTP Integration
 
-### 📝 Logging
+### 💾 Persistence
 
-- Structured Logging
-- Centralized Log Collection
-- Log Correlation
+- Persistent Grafana Storage
+- Dashboard persistence across Pod Restarts
 
-By the end of Release **2.0**, the platform will not only deploy workloads—it will also provide operational visibility into their health and performance.
+### 📦 Configuration
+
+- Dashboard JSON exported to Git
+- Alert Rule JSON exported to Git
+- Contact Point JSON exported to Git
+- Monitoring Helm configuration maintained in Git
+
+### 🧪 Validation
+
+The monitoring stack was validated using live application traffic and controlled failure scenarios.
+
+Alert lifecycle testing covered:
+
+- Pending
+- Firing
+- Email delivery
+- Recovery
+
+Release 2.0 establishes the monitoring baseline for the platform. Structured logging, centralized log collection, distributed tracing and more advanced observability capabilities remain future work.
 
 ---
 
@@ -1534,6 +1743,23 @@ The following concepts have been explored across Releases **1.0–1.9**.
 - TLS
 - HTTPS
 - HTTP Redirects
+
+---
+
+## Observability
+
+- Prometheus
+- PromQL
+- Application Metrics
+- Histogram Metrics
+- Percentile / P95 Latency
+- Error-rate Monitoring
+- Kubernetes Workload Metrics
+- Grafana Dashboards
+- Grafana Alerting
+- Alert Lifecycle
+- SMTP Notifications
+- Persistent Grafana Storage
 
 ---
 
