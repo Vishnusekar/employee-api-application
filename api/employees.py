@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 
 from config.logging_config import logger
 from config.settings import ENVIRONMENT
@@ -17,7 +17,14 @@ def get_employees():
         ENVIRONMENT,
     )
 
-    employees = get_all_employees()
+    try:
+        employees = get_all_employees()
+    except Exception:
+        logger.exception("Failed to retrieve employees")
+        raise HTTPException(
+            status_code=500,
+            detail="Unable to retrieve employees",
+        )
     return [
     {
         "id": employee.id,
