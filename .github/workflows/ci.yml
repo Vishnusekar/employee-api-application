@@ -35,3 +35,28 @@ jobs:
       - name: Build Docker image
         run: |
           docker build -t employee-api:${{ github.sha }} .
+
+      - name: Run Docker container
+        run: |
+          docker run -d \
+          --name employee-api \
+          -p 8000:8000 \
+          employee-api:${{ github.sha }}
+
+      - name: Wait for application
+        run: |
+          for i in {1..30}; do
+            if curl --fail http://localhost:8000/health/live; then
+              exit 0
+            fi
+            sleep 2
+          done
+
+          docker logs employee-api
+          exit 1
+
+      - name: Stop Docker container
+        if: always()
+        run: |
+          docker stop employee-api || true
+          docker rm employee-api || true
