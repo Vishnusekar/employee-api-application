@@ -105,17 +105,22 @@ jobs:
         run: |
           kubectl rollout status deployment/employee-platform -n employee --timeout=120s
 
-      - name: Debug Kubernetes resources
-        if: always()
+      - name: Smoke test Kubernetes deployment
         run: |
-          kubectl get pods -o wide -n employee
-          kubectl get deployments -n employee
-          kubectl get events -n employee --sort-by=.lastTimestamp
+          kubectl port-forward -n employee service/employee-platform-service 8000:80 > /tmp/port-forward.log 2>&1 &
+          PORT_FORWARD_PID=$!
 
-      - name: Debug Employee API logs
-        if: always()
-        run: |
-          kubectl logs deployment/employee-platform -n employee --all-containers=true
+          trap 'kill $PORT_FORWARD_PID 2>/dev/null || true' EXIT
+
+          for i in {1..30}; do
+            if curl --fail http://localhost:8000/health/ready; then
+              exit 0
+            fi
+            sleep 2
+          done
+
+          cat /tmp/port-forward.log
+          exit 1
 
       - name: Push Docker image
         run: |
