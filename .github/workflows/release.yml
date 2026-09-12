@@ -90,3 +90,16 @@ jobs:
           echo "Latest release: $LATEST_VERSION"
           echo "New release: $NEW_VERSION"
           echo "Version comparison passed."
+
+      - name: Validate release tag does not exist
+        env:
+          VERSION: ${{ inputs.version }}
+        run: |
+          TAG="v${VERSION}"
+
+          if git rev-parse "$TAG" >/dev/null 2>&1; then
+            echo "Release tag $TAG already exists."
+            exit 1
+          fi
+
+          echo "Release tag $TAG is available."
