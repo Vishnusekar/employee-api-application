@@ -108,6 +108,23 @@ jobs:
         id: rollout
         run: |
           kubectl rollout status deployment/employee-platform -n employee --timeout=120s
+        
+      - name: Rollout failure diagnostics
+        if: steps.rollout.outcome == 'failure'
+        run: |
+          echo "=== Pods ==="
+          kubectl get pods -n employee -o wide
+
+          echo "=== Deployments ==="
+          kubectl get deployments -n employee
+
+          echo "=== Events ==="
+          kubectl get events -n employee --sort-by=.lastTimestamp
+
+          echo "=== Employee API logs ==="
+          kubectl logs deployment/employee-platform \
+            -n employee \
+            --all-containers=true
 
       - name: Smoke test Kubernetes deployment
         id: smoke_test
