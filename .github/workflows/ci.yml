@@ -66,6 +66,11 @@ jobs:
         run: |
           helm lint employee-platform
 
+      - name: Set up Kubernetes cluster
+        uses: helm/kind-action@v1
+        with:
+          cluster_name: employee-api-ci
+
       - name: Build Docker image
         run: |
           docker build \
