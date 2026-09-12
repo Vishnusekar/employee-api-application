@@ -89,7 +89,8 @@ jobs:
         run: |
           helm upgrade --install employee-platform ./employee-platform \
             --set app.image.repository="${IMAGE_NAME%:*}" \
-            --set app.image.tag="${IMAGE_NAME##*:}"
+            --set app.image.tag="${IMAGE_NAME##*:}" \
+            --set postgres.persistence.enabled=false
 
       - name: Wait for Employee API rollout
         run: |
