@@ -62,7 +62,7 @@ jobs:
         run: |
           IMAGE_OWNER="${GITHUB_REPOSITORY_OWNER,,}"
           docker build \
-            -t ghcr.io/${IMAGE_OWNER}}/employee-api:${{ github.sha }} \
+            -t ghcr.io/${IMAGE_OWNER}/employee-api:${{ github.sha }} \
             .
 
       - name: Push Docker image
