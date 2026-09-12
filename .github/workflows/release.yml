@@ -47,3 +47,27 @@ jobs:
             echo "Latest release: $LATEST_VERSION"
             echo "latest=$LATEST_VERSION" >> "$GITHUB_OUTPUT"
           fi
+
+      - name: Validate version is newer
+        env:
+          NEW_VERSION: ${{ inputs.version }}
+          LATEST_VERSION: ${{ steps.latest_release.outputs.latest }}
+        run: |
+          if [ "$LATEST_VERSION" = "0.0.0" ]; then
+            echo "No previous release found."
+            echo "Version $NEW_VERSION is accepted as the first release."
+            exit 0
+          fi
+
+          HIGHEST_VERSION=$(printf '%s\n' "$LATEST_VERSION" "$NEW_VERSION" | sort -V | tail -n 1)
+
+          if [ "$HIGHEST_VERSION" != "$NEW_VERSION" ] || [ "$NEW_VERSION" = "$LATEST_VERSION" ]; then
+            echo "Invalid release version: $NEW_VERSION"
+            echo "Latest release: $LATEST_VERSION"
+            echo "New version must be greater than the latest release."
+            exit 1
+          fi
+
+          echo "Latest release: $LATEST_VERSION"
+          echo "New release: $NEW_VERSION"
+          echo "Version comparison passed."
