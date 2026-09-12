@@ -105,10 +105,12 @@ jobs:
             --set app.image.tag="${IMAGE_NAME##*:}"
 
       - name: Wait for Employee API rollout
+        id: rollout
         run: |
           kubectl rollout status deployment/employee-platform -n employee --timeout=120s
 
       - name: Smoke test Kubernetes deployment
+        id: smoke_test
         run: |
           kubectl port-forward -n employee service/employee-platform-service 8000:80 > /tmp/port-forward.log 2>&1 &
           PORT_FORWARD_PID=$!
@@ -124,3 +126,23 @@ jobs:
 
           cat /tmp/port-forward.log
           exit 1
+
+      - name: Kubernetes failure diagnostics
+        if: failure()
+        run: |
+          echo "=== Pods ==="
+          kubectl get pods -n employee -o wide
+
+          echo "=== Deployments ==="
+          kubectl get deployments -n employee
+
+          echo "=== Services ==="
+          kubectl get services -n employee
+
+          echo "=== Events ==="
+          kubectl get events -n employee --sort-by=.lastTimestamp
+
+          echo "=== Employee API logs ==="
+          kubectl logs deployment/employee-platform \
+            -n employee \
+            --all-containers=true
