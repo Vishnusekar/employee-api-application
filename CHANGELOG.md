@@ -5,6 +5,70 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.1.0] - 2026-09-12 – CI/CD Automation
+
+### Added
+
+- Added GitHub Actions CI pipeline.
+- Added automated Python test execution.
+- Added PostgreSQL service container for CI test execution.
+- Added Docker image build as part of CI.
+- Added GitHub Container Registry (GHCR) image publishing.
+- Added Helm chart validation using `helm lint`.
+- Added ephemeral Kubernetes validation using Kind.
+- Added PostgreSQL persistence setup for CI Kubernetes validation.
+- Added Helm-based deployment validation in Kind.
+- Added Kubernetes rollout verification.
+- Added Kubernetes smoke testing through the Employee API readiness endpoint.
+- Added targeted rollout and smoke-test failure diagnostics.
+- Added manual release workflow using semantic version input.
+- Added release version format validation.
+- Added release version ordering validation against the latest release.
+- Added Git tag creation and publishing.
+- Added automated GitHub Release creation with generated release notes.
+
+### Changed
+
+- CI now validates the application through the complete build and deployment path rather than only running application tests.
+- Docker images published by CI use the Git commit SHA as the image tag for immutable artifact identification.
+- Release creation is separated from CI and is manually initiated from the `main` branch.
+- Release tags use the `v<MAJOR.MINOR.PATCH>` convention.
+
+### Validation
+
+- Verified automated tests execute successfully in GitHub Actions.
+- Verified Docker image builds successfully in CI.
+- Verified Docker images are published to GHCR.
+- Verified Helm chart validation succeeds in CI.
+- Verified Employee API deployment succeeds in an ephemeral Kind Kubernetes cluster.
+- Verified Kubernetes rollout validation.
+- Verified Kubernetes readiness smoke test.
+- Verified targeted failure diagnostics for rollout and smoke-test failures.
+- Verified manual release creation using version `2.1.0`.
+- Verified Git tag `v2.1.0` creation and publishing.
+- Verified GitHub Release `v2.1.0` creation with generated release notes.
+
+### Platform Concepts Learned
+
+- Continuous Integration (CI)
+- GitHub Actions
+- CI service containers
+- Immutable container artifacts
+- Git commit SHA image tagging
+- GitHub Container Registry
+- Ephemeral Kubernetes environments
+- Kind
+- Helm validation in CI
+- Kubernetes integration testing
+- Deployment rollout verification
+- Kubernetes smoke testing
+- CI failure diagnostics
+- Semantic versioning
+- Git tags
+- GitHub Releases
+- Least-privilege workflow permissions
+- Separation of CI and release automation
+
 ## [2.0.0] - 2026-08-28 – Observability & Alerting
 
 ### Added

@@ -110,9 +110,9 @@ This mirrors how engineering teams gradually mature production platforms instead
 
 # 🚀 Current Release
 
-## **v2.0.0 — Observability & Alerting**
+## **v2.1.0 — Observability & Alerting**
 
-Release 2.0 extends the platform from securely deploying and exposing applications to actively monitoring and operating them.
+Release 2.1 extends the platform from deployment and observability into automated CI/CD and release engineering.
 
 Current platform capabilities include:
 
@@ -147,8 +147,18 @@ Current platform capabilities include:
 - ✅ Email Alert Notifications
 - ✅ Mailpit-based Alert Testing
 - ✅ Persistent Grafana Storage
+- ✅ GitHub Actions CI Pipeline
+- ✅ Automated Application Testing
+- ✅ Docker Image Publishing to GHCR
+- ✅ Helm Chart Validation
+- ✅ Kubernetes Validation using Kind
+- ✅ Kubernetes Deployment Smoke Testing
+- ✅ CI Failure Diagnostics
+- ✅ Manual Semantic Version Release Workflow
+- ✅ Git Tag Automation
+- ✅ GitHub Release Automation
 
-The project now represents a complete production-inspired deployment and monitoring workflow from source code to secure application exposure and operational alerting.
+The project now represents a production-inspired workflow covering application development, containerization, Kubernetes deployment, observability, CI validation and release automation.
 
 ---
 
@@ -211,12 +221,21 @@ The project focuses on implementing production-inspired capabilities across mult
 - SMTP Email Notifications
 - Persistent Grafana Storage
 
+### CI/CD
+
+- Github Actions CI Pipeline
+- Automated Pytest executions
+- GHCR Image publishing
+- Rollout deployment validation using Kind
+- Manual release workflow using SemVer input
+- Multi level release validation
+- Automated Git tag and release package creation and publishing with pre release notes
+
 ### Future Platform Capabilities
 
 - Structured Logging
 - Centralized Log Collection
 - GitOps
-- CI/CD
 - Infrastructure as Code
 - Progressive Delivery
 
@@ -259,10 +278,15 @@ The project focuses on implementing production-inspired capabilities across mult
 | Grafana Alerting | ✅ |
 | Email Alert Notifications | ✅ |
 | Persistent Grafana Storage | ✅ |
-| Structured Logging | 🚧 |
-| GitHub Actions CI/CD | 🚧 |
+| GitHub Actions CI/CD | ✅ |
+| Automated Testing | ✅ |
+| Docker Image Publishing | ✅ |
+| Kubernetes CI Validation | ✅ |
+| Release Automation | ✅ |
+| GitHub Releases | ✅ |
 | Terraform IaC | 🚧 |
 | ArgoCD GitOps | 🚧 |
+| Structured Logging | 📅 |
 | Horizontal Pod Autoscaling | 📅 |
 | cert-manager | 📅 |
 | Service Mesh | 📅 |
@@ -359,7 +383,7 @@ This architecture represents the platform as of **Release v2.0**, where applicat
 | Database | PostgreSQL 16 |
 | ORM | SQLAlchemy |
 | Containerization | Docker |
-| Container Registry | Local Minikube Image Store |
+| Container Registry | GitHub Container Registry (GHCR) |
 | Orchestration | Kubernetes |
 | Package Management | Helm |
 | Ingress Controller | NGINX Ingress |
@@ -372,6 +396,8 @@ This architecture represents the platform as of **Release v2.0**, where applicat
 | Documentation | Markdown |
 | Operating System | Ubuntu (WSL2) |
 | Development Environment | Visual Studio Code |
+| CI/CD | GitHub Actions |
+| Kubernetes CI Environment | Kind |
 
 ---
 
@@ -557,6 +583,11 @@ The repository follows a production-inspired layout that separates application c
 ```text
 employee-platform/
 │
+├── .github/                       # GitHub Actions Workflows 
+│   └── workflows/
+│       ├── ci.yml
+│       └── release.yml
+│
 ├── app/                           # FastAPI application
 │
 ├── employee-platform/             # Helm Chart
@@ -612,7 +643,9 @@ employee-platform/
 
 # 🚀 Deployment Workflow
 
-The deployment process intentionally mirrors how many engineering teams deploy applications into Kubernetes.
+The platform supports both local deployment and automated CI validation.
+
+## Local Deployment
 
 ```text
 Developer
@@ -622,6 +655,12 @@ Developer
       ▼
 
 Git Commit
+
+      │
+
+      ▼
+
+./scripts/deploy.sh
 
       │
 
@@ -688,6 +727,74 @@ Ingress
       ▼
 
 HTTPS Ready
+```
+
+## CI/CD Workflow
+
+```text
+Git Push / Pull Request
+
+      │
+
+      ▼
+
+GitHub Actions
+
+      │
+
+      ├── Automated Tests
+      │
+      ├── Helm Validation
+      │
+      ├── Docker Build
+      │
+      ├── GHCR Image Push
+      │
+      ├── Kind Kubernetes Cluster
+      │
+      ├── Helm Deployment
+      │
+      ├── Rollout Validation
+      │
+      └── Kubernetes Smoke Test
+
+      ▼
+
+Validated CI Artifact
+```
+
+## Release Workflow
+
+```text
+Manual Release Request
+
+      │
+
+      ▼
+
+Version Validation
+
+      │
+
+      ▼
+
+Latest Release Comparison
+
+      │
+
+      ▼
+
+Git Tag Creation
+
+      │
+
+      ▼
+
+GitHub Release
+
+      ▼
+
+v2.1.0
 ```
 
 ---
@@ -973,7 +1080,7 @@ Observability
 
 ↓
 
-CI/CD (Next)
+CI/CD
 ```
 
 Rather than introducing all technologies simultaneously, the platform evolves in small, understandable steps that closely resemble how production engineering teams mature their internal platforms.
@@ -1322,6 +1429,30 @@ Every release is validated using multiple layers of verification.
 
 ---
 
+## CI/CD
+
+- Automated pytest execution
+- PostgreSQL service container
+- Helm lint validation
+- Docker image build validation
+- GHCR image publishing
+- Kind Kubernetes deployment
+- Kubernetes rollout validation
+- Kubernetes readiness smoke testing
+- Targeted failure diagnostics
+
+---
+
+## Release
+
+- Release version format validation
+- Latest release comparison
+- Duplicate release tag detection
+- Git tag creation
+- GitHub Release creation
+
+---
+
 # 📈 Release Journey
 
 The platform has been intentionally built through progressive releases.
@@ -1339,6 +1470,7 @@ The platform has been intentionally built through progressive releases.
 | **1.8** | Helm Best Practices & Chart Refactoring |
 | **1.9** | Ingress, Host Routing, TLS & HTTPS |
 | **2.0** | Prometheus, Grafana, Dashboards & Alerting |
+| **2.1** | GitHub Actions CI/CD, GHCR Publishing & Release Automation |
 
 ---
 
@@ -1404,6 +1536,36 @@ Alert rules were validated using controlled application traffic and failure scen
 
 ---
 
+## Release 2.1
+
+CI/CD automation was introduced to move the platform beyond manual deployment and validation.
+
+Major additions included:
+
+- GitHub Actions CI pipeline
+- Automated application testing
+- PostgreSQL CI service container
+- Docker image builds
+- GitHub Container Registry publishing
+- Commit SHA-based image tagging
+- Helm chart validation
+- Ephemeral Kind Kubernetes validation
+- Helm-based Kubernetes deployment in CI
+- Kubernetes rollout validation
+- Kubernetes readiness smoke testing
+- Targeted CI failure diagnostics
+- Manual release workflow
+- Release version validation
+- Git tag automation
+- GitHub Release automation
+- Generated GitHub release notes
+
+CI and release automation are intentionally separated.
+
+CI validates changes and produces an immutable commit-SHA-based container artifact, while the release workflow creates a human-friendly semantic release identity such as `v2.1.0`.
+
+---
+
 # 📸 Screenshots
 
 The following screenshots will be added as the project evolves.
@@ -1456,11 +1618,16 @@ The following screenshots will be added as the project evolves.
 
 ---
 
+## GitHub Actions Pipeline
+
+- CI pipeline
+- Release Pipeline
+- Automated Release and Package management
+
 ## Future Releases
 
 Additional screenshots will be added as future platform capabilities are implemented.
 
-- GitHub Actions Pipeline
 - Terraform Apply
 - ArgoCD Dashboard
 - Centralized Logging
@@ -1484,6 +1651,7 @@ Current Platform Components
 | Grafana Persistent Storage | ✅ |
 | Mailpit | ✅ |
 | Grafana Alerting | ✅ |
+| CI & Release Pipeline | ✅ |
 
 These capabilities will continue to evolve as new platform releases are introduced.
 
@@ -1563,23 +1731,41 @@ Release 2.0 establishes the monitoring baseline for the platform. Structured log
 
 # 🚀 Release 2.1 — CI/CD Automation
 
-Once the platform becomes observable, deployment automation will be introduced.
+Release **2.1** introduces automated CI/CD and release engineering.
 
-Planned capabilities include:
+## Implemented
+
+### 🔄 Continuous Integration
 
 - GitHub Actions
-- Automated Build
 - Automated Testing
-- Docker Image Publishing
-- Helm Validation
-- Kubernetes Validation
-- Release Automation
-- Semantic Versioning
-- GitHub Releases
+- PostgreSQL CI Service Container
+- Docker Image Build
+- GitHub Container Registry Publishing
+- Commit SHA-based Image Tagging
+- Helm Chart Validation
+- Kind Kubernetes Validation
+- Helm Deployment Validation
+- Kubernetes Rollout Validation
+- Kubernetes Smoke Testing
+- Targeted Failure Diagnostics
 
-Deployment should eventually become as simple as pushing code to the repository.
+### 🚀 Release Automation
+
+- Manual Release Trigger
+- Semantic Version Validation
+- Latest Release Comparison
+- Duplicate Tag Detection
+- Git Tag Creation
+- GitHub Release Creation
+- Automatically Generated Release Notes
+
+The CI pipeline validates changes and produces immutable commit-SHA-based container images.
+
+The release workflow is intentionally separate from CI and is manually initiated with an explicit release version.
 
 ---
+
 
 # 🚀 Release 2.2 — Infrastructure as Code
 
