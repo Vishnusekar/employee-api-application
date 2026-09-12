@@ -54,18 +54,19 @@ jobs:
       - name: Run Docker container
         run: |
           docker run -d \
-          --name employee-api \
-          -p 8000:8000 \
-          -e DATABASE_HOST=host.docker.internal \
-          -e DATABASE_PORT=5432 \
-          -e DATABASE_NAME=employee \
-          -e DATABASE_USERNAME=ci_user \
-          -e DATABASE_PASSWORD=ci_password \
-          -e APP_NAME="Employee API" \
-          -e ENVIRONMENT="CI" \
-          -e STARTUP_DELAY=0 \
-          -e FAIL_AFTER=0 \
-          employee-api:${{ github.sha }}
+            --name employee-api \
+            --add-host=host.docker.internal:host-gateway \
+            -p 8000:8000 \
+            -e DATABASE_HOST=host.docker.internal \
+            -e DATABASE_PORT=5432 \
+            -e DATABASE_NAME=employee \
+            -e DATABASE_USERNAME=ci_user \
+            -e DATABASE_PASSWORD=ci_password \
+            -e APP_NAME="Employee API" \
+            -e ENVIRONMENT="CI" \
+            -e STARTUP_DELAY=0 \
+            -e FAIL_AFTER=0 \
+            employee-api:${{ github.sha }}
           
       - name: Wait for application
         run: |
