@@ -117,3 +117,16 @@ jobs:
           git push origin "$TAG"
 
           echo "Created and pushed tag $TAG"
+
+      - name: Create GitHub release
+        env:
+          VERSION: ${{ inputs.version }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="v${VERSION}"
+
+          gh release create "$TAG" \
+            --title "Release $TAG" \
+            --generate-notes
+
+          echo "Created GitHub release $TAG"
