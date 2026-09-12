@@ -64,9 +64,9 @@ jobs:
           -e APP_NAME="Employee API" \
           -e ENVIRONMENT="CI" \
           -e STARTUP_DELAY=0 \
-          -e FAIL_AFTER=0 \          
+          -e FAIL_AFTER=0 \
           employee-api:${{ github.sha }}
-
+          
       - name: Wait for application
         run: |
           for i in {1..30}; do
