@@ -41,13 +41,6 @@ jobs:
         run: |
           echo "IMAGE_NAME=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/employee-api:${{ github.sha }}" >> "$GITHUB_ENV"
 
-      - name: Log in to GitHub Container Registry
-        uses: docker/login-action@v3
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
@@ -81,6 +74,16 @@ jobs:
         run: |
           kind load docker-image "$IMAGE_NAME" --name employee-api-ci
 
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Push Docker image
+        run: |
+          docker push "$IMAGE_NAME"
+
       - name: Install Prometheus Operator CRDs
         run: |
           kubectl apply -f https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/main/example/prometheus-operator-crd/monitoring.coreos.com_servicemonitors.yaml
@@ -99,7 +102,7 @@ jobs:
             --namespace employee \
             --create-namespace \
             --set app.image.repository="${IMAGE_NAME%:*}" \
-            --set app.image.tag="${IMAGE_NAME##*:}" \
+            --set app.image.tag="${IMAGE_NAME##*:}"
 
       - name: Wait for Employee API rollout
         run: |
@@ -121,42 +124,3 @@ jobs:
 
           cat /tmp/port-forward.log
           exit 1
-
-      - name: Push Docker image
-        run: |
-          docker push "$IMAGE_NAME"
-
-      - name: Run Docker container
-        run: |
-          docker run -d \
-            --name employee-api \
-            --add-host=host.docker.internal:host-gateway \
-            -p 8000:8000 \
-            -e DATABASE_HOST=host.docker.internal \
-            -e DATABASE_PORT=5432 \
-            -e DATABASE_NAME=employee \
-            -e DATABASE_USERNAME=ci_user \
-            -e DATABASE_PASSWORD=ci_password \
-            -e APP_NAME="Employee API" \
-            -e ENVIRONMENT="CI" \
-            -e STARTUP_DELAY=0 \
-            -e FAIL_AFTER=0 \
-            "$IMAGE_NAME"
-          
-      - name: Wait for application
-        run: |
-          for i in {1..30}; do
-            if curl --fail http://localhost:8000/health/ready; then
-              exit 0
-            fi
-            sleep 2
-          done
-
-          docker logs employee-api
-          exit 1
-
-      - name: Stop Docker container
-        if: always()
-        run: |
-          docker stop employee-api || true
-          docker rm employee-api || true
