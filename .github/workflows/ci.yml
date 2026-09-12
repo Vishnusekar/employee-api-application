@@ -80,7 +80,13 @@ jobs:
       - name: Load Docker image into Kind
         run: |
           kind load docker-image "$IMAGE_NAME" --name employee-api-ci
-          
+
+      - name: Deploy Helm chart
+        run: |
+          helm upgrade --install employee-platform ./employee-platform \
+            --set app.image.repository="${IMAGE_NAME%:*}" \
+            --set app.image.tag="${IMAGE_NAME##*:}"
+
       - name: Push Docker image
         run: |
           docker push "$IMAGE_NAME"
