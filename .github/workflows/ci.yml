@@ -91,6 +91,10 @@ jobs:
             --set app.image.repository="${IMAGE_NAME%:*}" \
             --set app.image.tag="${IMAGE_NAME##*:}"
 
+      - name: Wait for Employee API rollout
+        run: |
+          kubectl rollout status deployment/employee-platform --timeout=120s
+
       - name: Push Docker image
         run: |
           docker push "$IMAGE_NAME"
