@@ -60,14 +60,16 @@ jobs:
 
       - name: Build Docker image
         run: |
+          IMAGE_OWNER="${GITHUB_REPOSITORY_OWNER,,}"
           docker build \
-            -t ghcr.io/${{ github.repository_owner }}/employee-api:${{ github.sha }} \
+            -t ghcr.io/${IMAGE_OWNER}}/employee-api:${{ github.sha }} \
             .
 
       - name: Push Docker image
         run: |
-          docker push ghcr.io/${{ github.repository_owner }}/employee-api:${{ github.sha }}
-          
+          IMAGE_OWNER="${GITHUB_REPOSITORY_OWNER,,}"
+          docker push ghcr.io/${IMAGE_OWNER}/employee-api:${{ github.sha }}
+
       - name: Run Docker container
         run: |
           docker run -d \
