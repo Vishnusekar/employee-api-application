@@ -1,9 +1,10 @@
 from sqlalchemy import select
 from database.models import Employee
-from database.session import SessionLocal
+from database.session import get_session
+
 
 def get_all_employees():
-    with SessionLocal() as session:
+    with get_session() as session:
         result = session.scalars(
             select(Employee)
         )

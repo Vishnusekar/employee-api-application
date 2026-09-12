@@ -1,0 +1,135 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Release version (MAJOR.MINOR.PATCH)"
+        required: true
+        type: string
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
+
+      - name: Validate release branch
+        run: |
+          if [ "${GITHUB_REF}" != "refs/heads/main" ]; then
+            echo "Releases can only be created from the main branch."
+            echo "Current ref: ${GITHUB_REF}"
+            exit 1
+          fi
+
+          echo "Release branch validation passed."
+
+      - name: Validate repository state
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "Repository working tree is not clean."
+            git status --short
+            exit 1
+          fi
+          echo "Repository working tree is clean."
+
+      - name: Validate version format
+        env:
+          VERSION: ${{ inputs.version }}
+        run: |
+          if [[ ! "$VERSION" =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Invalid version: $VERSION"
+            echo "Version must follow MAJOR.MINOR.PATCH format."
+            exit 1
+          fi
+          echo "Valid version: $VERSION"
+            
+      - name: Fetch repository tags
+        run: |
+          git fetch --tags --force
+          
+      - name: Determine latest release
+        id: latest_release
+        run: |
+          LATEST_TAG=$(git tag --list 'v[0-9]*.[0-9]*.[0-9]*' --sort=-v:refname | head -n 1)
+
+          if [ -z "$LATEST_TAG" ]; then
+            echo "No existing release tags found."
+            echo "latest=0.0.0" >> "$GITHUB_OUTPUT"
+          else
+            LATEST_VERSION="${LATEST_TAG#v}"
+            echo "Latest release: $LATEST_VERSION"
+            echo "latest=$LATEST_VERSION" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Validate version is newer
+        env:
+          NEW_VERSION: ${{ inputs.version }}
+          LATEST_VERSION: ${{ steps.latest_release.outputs.latest }}
+        run: |
+          if [ "$LATEST_VERSION" = "0.0.0" ]; then
+            echo "No previous release found."
+            echo "Version $NEW_VERSION is accepted as the first release."
+            exit 0
+          fi
+
+          HIGHEST_VERSION=$(printf '%s\n' "$LATEST_VERSION" "$NEW_VERSION" | sort -V | tail -n 1)
+
+          if [ "$HIGHEST_VERSION" != "$NEW_VERSION" ] || [ "$NEW_VERSION" = "$LATEST_VERSION" ]; then
+            echo "Invalid release version: $NEW_VERSION"
+            echo "Latest release: $LATEST_VERSION"
+            echo "New version must be greater than the latest release."
+            exit 1
+          fi
+
+          echo "Latest release: $LATEST_VERSION"
+          echo "New release: $NEW_VERSION"
+          echo "Version comparison passed."
+
+      - name: Validate release tag does not exist
+        env:
+          VERSION: ${{ inputs.version }}
+        run: |
+          TAG="v${VERSION}"
+
+          if git rev-parse "$TAG" >/dev/null 2>&1; then
+            echo "Release tag $TAG already exists."
+            exit 1
+          fi
+
+          echo "Release tag $TAG is available."
+
+      - name: Create release tag
+        env:
+          VERSION: ${{ inputs.version }}
+        run: |
+          TAG="v${VERSION}"
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+          git tag -a "$TAG" -m "Release $TAG"
+          git push origin "$TAG"
+
+          echo "Created and pushed tag $TAG"
+
+      - name: Create GitHub release
+        env:
+          VERSION: ${{ inputs.version }}
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="v${VERSION}"
+
+          gh release create "$TAG" \
+            --title "Release $TAG" \
+            --generate-notes
+
+          echo "Created GitHub release $TAG"

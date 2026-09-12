@@ -1,0 +1,165 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+      - release-2.1-CI-pipeline
+
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      packages: write
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: employee
+          POSTGRES_USER: ci_user
+          POSTGRES_PASSWORD: ci_password
+        ports:
+        - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U ci_user -d employee"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10  
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set image name
+        run: |
+          echo "IMAGE_NAME=ghcr.io/${GITHUB_REPOSITORY_OWNER,,}/employee-api:${{ github.sha }}" >> "$GITHUB_ENV"
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run tests
+        run: |
+          pytest -v
+
+      - name: Validate Helm chart
+        run: |
+          helm lint employee-platform
+
+      - name: Set up Kubernetes cluster
+        uses: helm/kind-action@v1
+        with:
+          cluster_name: employee-api-ci
+
+      - name: Build Docker image
+        run: |
+          docker build \
+            -t "$IMAGE_NAME" \
+            .
+
+      - name: Load Docker image into Kind
+        run: |
+          kind load docker-image "$IMAGE_NAME" --name employee-api-ci
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Push Docker image
+        run: |
+          docker push "$IMAGE_NAME"
+
+      - name: Install Prometheus Operator CRDs
+        run: |
+          kubectl apply -f https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/main/example/prometheus-operator-crd/monitoring.coreos.com_servicemonitors.yaml
+
+      - name: Create employee namespace
+        run: |
+          kubectl create namespace employee --dry-run=client -o yaml | kubectl apply -f -
+
+      - name: Create PostgreSQL PVC
+        run: |
+          kubectl apply -f infrastructure/postgres-pvc.yaml
+
+      - name: Deploy Helm chart
+        run: |
+          helm upgrade --install employee-platform ./employee-platform \
+            --namespace employee \
+            --create-namespace \
+            --set app.image.repository="${IMAGE_NAME%:*}" \
+            --set app.image.tag="${IMAGE_NAME##*:}"
+
+      - name: Wait for Employee API rollout
+        id: rollout
+        run: |
+          kubectl rollout status deployment/employee-platform -n employee --timeout=120s
+        
+      - name: Rollout failure diagnostics
+        if: ${{ failure() && steps.rollout.outcome == 'failure' }}
+        run: |
+          echo "=== Pods ==="
+          kubectl get pods -n employee -o wide
+
+          echo "=== Deployments ==="
+          kubectl get deployments -n employee
+
+          echo "=== Events ==="
+          kubectl get events -n employee --sort-by=.lastTimestamp
+
+          echo "=== Employee API logs ==="
+          kubectl logs deployment/employee-platform \
+            -n employee \
+            --all-containers=true
+
+      - name: Smoke test Kubernetes deployment
+        id: smoke_test
+        run: |
+          kubectl port-forward -n employee service/employee-platform-service 8000:80 > /tmp/port-forward.log 2>&1 &
+          PORT_FORWARD_PID=$!
+
+          trap 'kill $PORT_FORWARD_PID 2>/dev/null || true' EXIT
+
+          for i in {1..30}; do
+            if curl --fail http://localhost:8000/health/ready; then
+              exit 0
+            fi
+            sleep 2
+          done
+
+          cat /tmp/port-forward.log
+          exit 1
+
+      - name: Smoke test failure diagnostics
+        if: ${{ failure() && steps.smoke_test.outcome == 'failure' }}
+        run: |
+          echo "=== Pods ==="
+          kubectl get pods -n employee -o wide
+
+          echo "=== Services ==="
+          kubectl get services -n employee
+
+          echo "=== Events ==="
+          kubectl get events -n employee --sort-by=.lastTimestamp
+
+          echo "=== Employee API logs ==="
+          kubectl logs deployment/employee-platform \
+            -n employee \
+            --all-containers=true
+
+          echo "=== Port-forward log ==="
+          cat /tmp/port-forward.log
