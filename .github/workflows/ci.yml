@@ -110,7 +110,7 @@ jobs:
           kubectl rollout status deployment/employee-platform -n employee --timeout=120s
         
       - name: Rollout failure diagnostics
-        if: steps.rollout.outcome == 'failure'
+        if: ${{ failure() && steps.rollout.outcome == 'failure' }}
         run: |
           echo "=== Pods ==="
           kubectl get pods -n employee -o wide
@@ -145,7 +145,7 @@ jobs:
           exit 1
 
       - name: Smoke test failure diagnostics
-        if: steps.smoke_test.outcome == 'failure'
+        if: ${{ failure() && steps.smoke_test.outcome == 'failure' }}
         run: |
           echo "=== Pods ==="
           kubectl get pods -n employee -o wide
