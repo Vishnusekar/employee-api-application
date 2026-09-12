@@ -18,6 +18,9 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+        with:
+          ref: main
+          fetch-depth: 0
 
       - name: Validate release branch
         run: |
@@ -36,8 +39,8 @@ jobs:
             git status --short
             exit 1
           fi
-
           echo "Repository working tree is clean."
+
       - name: Validate version format
         env:
           VERSION: ${{ inputs.version }}
@@ -47,7 +50,7 @@ jobs:
             echo "Version must follow MAJOR.MINOR.PATCH format."
             exit 1
           fi
-            echo "Valid version: $VERSION"
+          echo "Valid version: $VERSION"
             
       - name: Fetch repository tags
         run: |
