@@ -29,6 +29,15 @@ jobs:
 
           echo "Release branch validation passed."
 
+      - name: Validate repository state
+        run: |
+          if [ -n "$(git status --porcelain)" ]; then
+            echo "Repository working tree is not clean."
+            git status --short
+            exit 1
+          fi
+
+          echo "Repository working tree is clean."
       - name: Validate version format
         env:
           VERSION: ${{ inputs.version }}
