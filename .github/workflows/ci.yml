@@ -72,6 +72,7 @@ jobs:
 
       - name: Run Docker container
         run: |
+          IMAGE_OWNER="${GITHUB_REPOSITORY_OWNER,,}"
           docker run -d \
             --name employee-api \
             --add-host=host.docker.internal:host-gateway \
@@ -85,7 +86,7 @@ jobs:
             -e ENVIRONMENT="CI" \
             -e STARTUP_DELAY=0 \
             -e FAIL_AFTER=0 \
-            ghcr.io/${{ github.repository_owner }}/employee-api:${{ github.sha }}
+            ghcr.io/${IMAGE_OWNER}/employee-api:${{ github.sha }}
           
       - name: Wait for application
         run: |
