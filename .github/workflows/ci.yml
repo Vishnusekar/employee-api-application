@@ -103,7 +103,7 @@ jobs:
 
       - name: Wait for Employee API rollout
         run: |
-          kubectl rollout status deployment/employee-platform --timeout=120s
+          kubectl rollout status deployment/employee-platform -n employee --timeout=120s
 
       - name: Debug Kubernetes resources
         if: always()
