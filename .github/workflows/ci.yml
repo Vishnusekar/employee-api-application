@@ -77,6 +77,10 @@ jobs:
             -t "$IMAGE_NAME" \
             .
 
+      - name: Load Docker image into Kind
+        run: |
+          kind load docker-image "$IMAGE_NAME" --name employee-api-ci
+          
       - name: Push Docker image
         run: |
           docker push "$IMAGE_NAME"
