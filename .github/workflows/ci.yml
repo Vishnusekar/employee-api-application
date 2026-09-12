@@ -87,7 +87,7 @@ jobs:
 
       - name: Create PostgreSQL PVC
         run: |
-          kubectl apply -f employee-platform/infrastructure/postgres-pvc.yaml
+          kubectl apply -f infrastructure/postgres-pvc.yaml
 
       - name: Deploy Helm chart
         run: |
