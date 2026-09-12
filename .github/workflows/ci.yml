@@ -62,6 +62,10 @@ jobs:
         run: |
           pytest -v
 
+      - name: Validate Helm chart
+        run: |
+          helm lint employee-platform
+
       - name: Build Docker image
         run: |
           docker build \
