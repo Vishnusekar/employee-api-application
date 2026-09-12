@@ -19,6 +19,16 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      - name: Validate release branch
+        run: |
+          if [ "${GITHUB_REF}" != "refs/heads/main" ]; then
+            echo "Releases can only be created from the main branch."
+            echo "Current ref: ${GITHUB_REF}"
+            exit 1
+          fi
+
+          echo "Release branch validation passed."
+
       - name: Validate version format
         env:
           VERSION: ${{ inputs.version }}
