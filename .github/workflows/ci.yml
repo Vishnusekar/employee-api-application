@@ -144,14 +144,11 @@ jobs:
           cat /tmp/port-forward.log
           exit 1
 
-      - name: Kubernetes failure diagnostics
-        if: failure()
+      - name: Smoke test failure diagnostics
+        if: steps.smoke_test.outcome == 'failure'
         run: |
           echo "=== Pods ==="
           kubectl get pods -n employee -o wide
-
-          echo "=== Deployments ==="
-          kubectl get deployments -n employee
 
           echo "=== Services ==="
           kubectl get services -n employee
@@ -163,3 +160,6 @@ jobs:
           kubectl logs deployment/employee-platform \
             -n employee \
             --all-containers=true
+
+          echo "=== Port-forward log ==="
+          cat /tmp/port-forward.log
