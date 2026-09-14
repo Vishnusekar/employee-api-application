@@ -7,6 +7,12 @@ terraform {
   }
 }
 
+variable "kubeconfig_path" {
+  description = "Path to the Kubernetes kubeconfig file"
+  type        = string
+  default     = "~/.kube/config"
+}
+
 provider "kubernetes" {
-  config_path = "~/.kube/config"
+  config_path = var.kubeconfig_path
 }
