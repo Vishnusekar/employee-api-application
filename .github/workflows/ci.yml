@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-      - release-2.1-CI-pipeline
+      - release-2.2-iac
 
   pull_request:
     branches:
@@ -64,6 +64,27 @@ jobs:
         with:
           cluster_name: employee-api-ci
 
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.16.2"
+
+      - name: Terraform format check
+        working-directory: infrastructure/terraform
+        run: terraform fmt -check -recursive
+
+      - name: Initialize Terraform
+        working-directory: infrastructure/terraform
+        run: terraform init -input=false
+
+      - name: Validate Terraform
+        working-directory: infrastructure/terraform
+        run: terraform validate
+
+      - name: Plan Terraform
+        working-directory: infrastructure/terraform
+        run: terraform plan -input=false -no-color
+
       - name: Build Docker image
         run: |
           docker build \
@@ -88,13 +109,9 @@ jobs:
         run: |
           kubectl apply -f https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/main/example/prometheus-operator-crd/monitoring.coreos.com_servicemonitors.yaml
 
-      - name: Create employee namespace
-        run: |
-          kubectl create namespace employee --dry-run=client -o yaml | kubectl apply -f -
-
-      - name: Create PostgreSQL PVC
-        run: |
-          kubectl apply -f infrastructure/postgres-pvc.yaml
+      - name: Apply Terraform infrastructure
+        working-directory: infrastructure/terraform
+        run: terraform apply -input=false -auto-approve
 
       - name: Deploy Helm chart
         run: |
