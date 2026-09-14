@@ -4,6 +4,7 @@ resource "kubernetes_persistent_volume_claim" "postgres" {
     namespace = kubernetes_namespace.employee.metadata[0].name
   }
 
+  wait_until_bound = false
   spec {
     access_modes = ["ReadWriteOnce"]
 
