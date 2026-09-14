@@ -9,7 +9,7 @@ resource "kubernetes_persistent_volume_claim" "postgres" {
 
     resources {
       requests = {
-        storage = "1Gi"
+        storage = var.postgres_storage_size
       }
     }
   }
