@@ -12,3 +12,4 @@ certs/*.key
 infrastructure/terraform/.terraform/
 infrastructure/terraform/*.tfstate
 infrastructure/terraform/*.tfstate.*
+infrastructure/terraform/*.tfvars
