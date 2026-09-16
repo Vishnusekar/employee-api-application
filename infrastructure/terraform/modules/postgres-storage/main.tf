@@ -1,16 +1,17 @@
 resource "kubernetes_persistent_volume_claim" "postgres" {
   metadata {
     name      = "postgres-pvc"
-    namespace = kubernetes_namespace.employee.metadata[0].name
+    namespace = var.namespace
   }
 
   wait_until_bound = false
+
   spec {
-    access_modes = ["ReadWriteOnce"]
+    access_modes = [var.access_mode]
 
     resources {
       requests = {
-        storage = var.postgres_storage_size
+        storage = var.storage_size
       }
     }
   }
