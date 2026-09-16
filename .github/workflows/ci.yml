@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-      - release-2.1-CI-pipeline
+      - release-2.2-iac
 
   pull_request:
     branches:
@@ -64,6 +64,31 @@ jobs:
         with:
           cluster_name: employee-api-ci
 
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.16.2"
+
+      - name: Terraform format check
+        working-directory: infrastructure/terraform
+        run: terraform fmt -check -recursive
+
+      - name: Initialize Terraform
+        working-directory: infrastructure/terraform
+        env:
+          TF_TOKEN_app_terraform_io: ${{ secrets.TF_TOKEN_app_terraform_io }}
+        run: terraform init -input=false
+
+      - name: Validate Terraform
+        working-directory: infrastructure/terraform
+        run: terraform validate
+
+      - name: Plan Terraform
+        working-directory: infrastructure/terraform
+        env:
+          TF_TOKEN_app_terraform_io: ${{ secrets.TF_TOKEN_app_terraform_io }}
+        run: terraform plan -input=false -no-color
+
       - name: Build Docker image
         run: |
           docker build \
@@ -88,13 +113,29 @@ jobs:
         run: |
           kubectl apply -f https://raw.githubusercontent.com/prometheus-operator/prometheus-operator/main/example/prometheus-operator-crd/monitoring.coreos.com_servicemonitors.yaml
 
-      - name: Create employee namespace
+      - name: Diagnose Kubernetes storage
+        if: failure()
         run: |
-          kubectl create namespace employee --dry-run=client -o yaml | kubectl apply -f -
+          echo "=== Storage Classes ==="
+          kubectl get storageclass
 
-      - name: Create PostgreSQL PVC
-        run: |
-          kubectl apply -f infrastructure/postgres-pvc.yaml
+          echo "=== Persistent Volumes ==="
+          kubectl get pv
+
+          echo "=== Persistent Volume Claims ==="
+          kubectl get pvc -A
+
+          echo "=== PVC Details ==="
+          kubectl describe pvc postgres-pvc -n employee || true
+
+          echo "=== Kubernetes Events ==="
+          kubectl get events -A --sort-by=.lastTimestamp
+          
+      - name: Apply Terraform infrastructure
+        working-directory: infrastructure/terraform
+        env:
+          TF_TOKEN_app_terraform_io: ${{ secrets.TF_TOKEN_app_terraform_io }}
+        run: terraform apply -input=false -auto-approve
 
       - name: Deploy Helm chart
         run: |

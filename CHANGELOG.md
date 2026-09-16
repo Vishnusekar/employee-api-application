@@ -5,6 +5,74 @@
 
 All notable changes to this project will be documented in this file.
 
+## [2.2.0] - 2026-09-17 – Infrastructure as Code
+
+### Added
+
+- Introduced Terraform for Infrastructure as Code.
+- Added Terraform-based Kubernetes namespace management.
+- Added Terraform-based PostgreSQL PersistentVolumeClaim management.
+- Introduced reusable Terraform module for PostgreSQL persistent storage.
+- Added Terraform variables for configurable infrastructure parameters.
+- Added Terraform outputs for managed infrastructure resources.
+- Added Terraform validation for PostgreSQL PersistentVolumeClaim access modes.
+- Added Terraform resource import for existing Kubernetes infrastructure.
+- Added infrastructure drift detection through Terraform plan.
+- Added HCP Terraform for remote Terraform state management.
+- Added GitHub Actions authentication for HCP Terraform.
+- Added automated Terraform initialization in CI.
+- Added automated Terraform validation in CI.
+- Added automated Terraform planning in CI.
+- Added automated Terraform infrastructure application in CI.
+
+### Changed
+
+- Separated infrastructure provisioning from application deployment.
+- Terraform now manages the Kubernetes namespace and PostgreSQL PersistentVolumeClaim.
+- Helm remains responsible for application and database workload deployment.
+- PostgreSQL Helm deployment now consumes the Terraform-managed PersistentVolumeClaim.
+- Terraform state was migrated from local state to HCP Terraform remote state.
+- CI infrastructure provisioning now operates against the shared remote Terraform state.
+
+### Fixed
+
+- Fixed Terraform PVC lifecycle handling for Kubernetes environments using `WaitForFirstConsumer` storage provisioning.
+- Disabled Terraform PVC `wait_until_bound` behavior so infrastructure provisioning does not block before the PostgreSQL workload creates the first volume consumer.
+- Preserved the existing Kubernetes PVC during Terraform adoption and module refactoring without recreating the resource.
+
+### Validation
+
+- Verified existing Kubernetes namespace adoption using Terraform import.
+- Verified existing PostgreSQL PersistentVolumeClaim adoption using Terraform import.
+- Verified Terraform state migration after extracting the PostgreSQL storage module.
+- Verified Terraform state address migration without recreating the Kubernetes PVC.
+- Verified infrastructure drift detection by introducing and reconciling an out-of-band Kubernetes label change.
+- Verified Terraform plan reports no changes when infrastructure matches the declared configuration.
+- Verified HCP Terraform remote state migration successfully.
+- Verified Terraform outputs and state through HCP Terraform.
+- Verified GitHub Actions authentication to HCP Terraform using a repository secret.
+- Verified Terraform `init`, `validate`, `plan` and `apply` successfully execute in GitHub Actions using remote state.
+- Verified the complete CI pipeline succeeds with Terraform-managed infrastructure and Helm-managed application deployment.
+
+### Platform Concepts Learned
+
+- Infrastructure as Code (IaC)
+- Terraform
+- Declarative infrastructure management
+- Terraform providers
+- Terraform modules
+- Terraform variables and outputs
+- Terraform resource import
+- Terraform state management
+- Terraform state address migration
+- Infrastructure drift detection
+- Remote Terraform state
+- HCP Terraform
+- Terraform and Helm ownership boundaries
+- Infrastructure lifecycle management
+- `WaitForFirstConsumer` storage provisioning
+- Infrastructure provisioning through CI/CD
+
 ## [2.1.0] - 2026-09-12 – CI/CD Automation
 
 ### Added

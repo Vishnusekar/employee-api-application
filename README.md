@@ -31,11 +31,13 @@
 
 # 📖 Overview
 
-Employee Platform is a **production-grade Platform Engineering learning project** that demonstrates how modern cloud-native applications are built, packaged, deployed, exposed and secured on Kubernetes.
+Employee Platform is a production-grade Platform Engineering learning project that demonstrates how modern cloud-native applications are built, packaged, provisioned, deployed, exposed, secured and operated on Kubernetes.
 
 Unlike traditional CRUD applications where the application itself is the primary focus, this repository intentionally treats the Employee API as the workload running on the platform.
 
-The real objective is to design and build the **platform surrounding the application** using engineering practices commonly followed by Platform Engineering, Cloud Infrastructure and Site Reliability Engineering (SRE) teams.
+The real objective is to design and build the platform surrounding the application using engineering practices commonly followed by Platform Engineering, Cloud Infrastructure and Site Reliability Engineering (SRE) teams.
+
+The platform now covers the lifecycle from infrastructure provisioning through application delivery and operational observability, using Terraform, Helm, Kubernetes, GitHub Actions, Prometheus and Grafana.
 
 Every release introduces a single production concept and incrementally evolves the platform, mirroring how real enterprise platforms grow over time.
 
@@ -50,6 +52,11 @@ Rather than simply deploying an application to Kubernetes, this project focuses 
 - How should networking be designed?
 - How should traffic be secured?
 - How should platforms evolve through versioned releases?
+- How should infrastructure be provisioned declaratively?
+- How should infrastructure state be managed safely?
+- How should infrastructure drift be detected and reconciled?
+- How should infrastructure provisioning be separated from application deployment?
+- How should infrastructure changes be validated automatically in CI?
 
 Each release builds upon the previous one while introducing only one major engineering concept at a time.
 
@@ -103,6 +110,10 @@ Examples include:
 - Introducing Ingress only after Services alone became insufficient.
 - Introducing TLS only after host-based routing had been implemented.
 - Deferring Observability until networking foundations were complete.
+- Introducing Terraform only after Kubernetes resource management became part of the platform lifecycle.
+- Introducing reusable Terraform modules when infrastructure resources began to require consistent and reusable definitions.
+- Introducing remote Terraform state when infrastructure state needed to be shared and managed independently of an individual developer workstation.
+- Separating infrastructure provisioning from application deployment so Terraform and Helm have clearly defined ownership boundaries.
 
 This mirrors how engineering teams gradually mature production platforms instead of attempting to build everything on day one.
 
@@ -110,9 +121,13 @@ This mirrors how engineering teams gradually mature production platforms instead
 
 # 🚀 Current Release
 
-## **v2.1.0 — Observability & Alerting**
+## **v2.2.0 — Infrastructure as Code**
 
-Release 2.1 extends the platform from deployment and observability into automated CI/CD and release engineering.
+Release 2.2 introduces Infrastructure as Code (IaC) and establishes a clear separation between infrastructure provisioning and application deployment.
+
+Terraform is now responsible for provisioning and managing Kubernetes platform prerequisites, while Helm remains responsible for application deployment.
+
+The infrastructure state is managed remotely using HCP Terraform, and Terraform validation, planning and application are integrated into the GitHub Actions CI pipeline.
 
 Current platform capabilities include:
 
@@ -157,8 +172,23 @@ Current platform capabilities include:
 - ✅ Manual Semantic Version Release Workflow
 - ✅ Git Tag Automation
 - ✅ GitHub Release Automation
+- ✅ Terraform Infrastructure as Code
+- ✅ Kubernetes Namespace Management
+- ✅ PostgreSQL PersistentVolumeClaim Management
+- ✅ Reusable Terraform Infrastructure Modules
+- ✅ Terraform Variables
+- ✅ Terraform Outputs
+- ✅ Existing Kubernetes Resource Import
+- ✅ Terraform State Management
+- ✅ Infrastructure Drift Detection
+- ✅ HCP Terraform Remote State
+- ✅ GitHub Actions Terraform Authentication
+- ✅ Automated Terraform Validation
+- ✅ Automated Terraform Plan
+- ✅ Automated Terraform Apply
+- ✅ Infrastructure/Application Ownership Separation
 
-The project now represents a production-inspired workflow covering application development, containerization, Kubernetes deployment, observability, CI validation and release automation.
+The project now represents a production-inspired platform engineering workflow covering infrastructure provisioning, application development, containerization, Kubernetes deployment, observability, CI validation and release automation.
 
 ---
 
@@ -230,13 +260,29 @@ The project focuses on implementing production-inspired capabilities across mult
 - Manual release workflow using SemVer input
 - Multi level release validation
 - Automated Git tag and release package creation and publishing with pre release notes
+- Terraform formatting and validation
+- Terraform plan validation
+- Terraform infrastructure provisioning
+- HCP Terraform remote state integration
+
+### Infrastructure as Code
+
+- Terraform
+- Declarative infrastructure management
+- Kubernetes resource provisioning
+- Reusable Terraform modules
+- Terraform variables
+- Terraform outputs
+- Infrastructure state management
+- Remote state using HCP Terraform
+- Infrastructure drift detection
+- Infrastructure lifecycle management
 
 ### Future Platform Capabilities
 
 - Structured Logging
-- Centralized Log Collection
-- GitOps
-- Infrastructure as Code
+- ArgoCD
+- GitOps-based Continuous Delivery
 - Progressive Delivery
 
 ---
@@ -284,7 +330,13 @@ The project focuses on implementing production-inspired capabilities across mult
 | Kubernetes CI Validation | ✅ |
 | Release Automation | ✅ |
 | GitHub Releases | ✅ |
-| Terraform IaC | 🚧 |
+| Terraform IaC | ✅ |
+| Terraform Modules | ✅ |
+| Terraform Variables & Outputs | ✅ |
+| Terraform State Management | ✅ |
+| HCP Terraform Remote State | ✅ |
+| Infrastructure Drift Detection | ✅ |
+| Terraform CI Validation | ✅ |
 | ArgoCD GitOps | 🚧 |
 | Structured Logging | 📅 |
 | Horizontal Pod Autoscaling | 📅 |
@@ -372,6 +424,46 @@ The project focuses on implementing production-inspired capabilities across mult
 
 This architecture represents the platform as of **Release v2.0**, where applications are securely exposed through an NGINX Ingress Controller and monitored using Prometheus and Grafana. Grafana provides operational dashboards and alerting, while Mailpit provides a local SMTP endpoint for validating email notifications.
 
+# 🏗 Infrastructure and Delivery Architecture (as of Release 2.2)
+
+                         Git Repository
+                              │
+             ┌────────────────┴────────────────┐
+             │                                 │
+             ▼                                 ▼
+        Terraform                         Helm Chart
+             │                                 │
+             ▼                                 ▼
+       HCP Terraform                    Kubernetes Cluster
+       Remote State                          │
+             │                               ├── Employee API
+             ▼                               ├── PostgreSQL
+       Infrastructure                        ├── Services
+       Provisioning                          ├── Ingress
+                                             └── ServiceMonitor
+
+This architecture represents the platform as of Release v2.2, where Terraform provisions and manages selected Kubernetes infrastructure resources, Helm manages application deployment, and Prometheus and Grafana provide operational observability.
+
+### Infrastructure Ownership
+
+Terraform manages platform prerequisites and infrastructure resources:
+
+- Kubernetes namespace
+- PostgreSQL PersistentVolumeClaim
+
+Helm manages application deployment resources:
+
+- Employee API Deployment
+- Employee API Service
+- PostgreSQL Deployment
+- PostgreSQL Service
+- Ingress
+- ConfigMap
+- Secret
+- ServiceMonitor
+
+This separation prevents Terraform and Helm from competing to manage the same Kubernetes resources.
+
 ---
 
 # 🛠 Technology Stack
@@ -398,6 +490,9 @@ This architecture represents the platform as of **Release v2.0**, where applicat
 | Development Environment | Visual Studio Code |
 | CI/CD | GitHub Actions |
 | Kubernetes CI Environment | Kind |
+| Infrastructure as Code | Terraform |
+| Terraform State Management | HCP Terraform |
+| Infrastructure Provider | Kubernetes Provider |
 
 ---
 
@@ -496,6 +591,11 @@ Current capabilities include:
 - Automated Validation
 - Smoke Testing
 - Release Documentation
+- Infrastructure as Code
+- Terraform Modules
+- Remote Terraform State
+- Infrastructure Drift Detection
+- Infrastructure/Application Ownership Boundaries
 
 ---
 
@@ -574,6 +674,34 @@ Recovered
 
 Dashboard definitions, alert rules and contact-point configuration are exported as JSON and maintained in Git alongside the monitoring Helm configuration.
 
+## 🏗️ Infrastructure as Code
+
+Release **v2.2** introduced Infrastructure as Code using Terraform.
+
+Terraform is responsible for provisioning and managing Kubernetes platform prerequisites and persistent infrastructure resources.
+
+### Managed Resources
+
+- Kubernetes namespace
+- PostgreSQL PersistentVolumeClaim
+
+### Terraform Structure
+
+```text
+infrastructure/
+└── terraform/
+    ├── main.tf
+    ├── namespace.tf
+    ├── variables.tf
+    ├── outputs.tf
+    ├── terraform.tfvars.example
+    ├── .terraform.lock.hcl
+    └── modules/
+        └── postgres-storage/
+            ├── main.tf
+            ├── variables.tf
+            └── outputs.tf
+
 ---
 
 # 📂 Repository Structure
@@ -610,6 +738,20 @@ employee-platform/
 │   │
 │   ├── NOTES.txt
 │   └── _helpers.tpl
+│
+├── infrastructure/
+│   └── terraform/
+│       ├── main.tf
+│       ├── namespace.tf
+│       ├── variables.tf
+│       ├── outputs.tf
+│       ├── terraform.tfvars.example
+│       ├── .terraform.lock.hcl
+│       └── modules/
+│           └── postgres-storage/
+│               ├── main.tf
+│               ├── variables.tf
+│               └── outputs.tf
 │
 ├── certs/
 │   ├── employee.local.crt
@@ -1371,6 +1513,36 @@ https://employee.local/docs
 
 ---
 
+# 🔄 Platform Deployment Model
+
+The platform uses separate tools for infrastructure provisioning and application deployment.
+
+### Infrastructure Provisioning
+
+```text
+Git
+ ↓
+GitHub Actions
+ ↓
+Terraform
+ ↓
+HCP Terraform Remote State
+ ↓
+Kubernetes
+```
+
+### Application Deployment
+
+Git
+ ↓
+GitHub Actions / Local Deployment
+ ↓
+Helm
+ ↓
+Kubernetes
+ ↓
+Employee API + PostgreSQL
+
 # 🧪 Testing Strategy
 
 Every release is validated using multiple layers of verification.
@@ -1453,6 +1625,23 @@ Every release is validated using multiple layers of verification.
 
 ---
 
+### Infrastructure Validation
+
+Terraform infrastructure changes are validated through:
+
+- `terraform fmt`
+- `terraform validate`
+- `terraform plan`
+- `terraform apply`
+- Kubernetes resource verification
+- Terraform state verification
+- Drift detection testing
+- CI execution using HCP Terraform remote state
+
+---
+
+
+
 # 📈 Release Journey
 
 The platform has been intentionally built through progressive releases.
@@ -1471,6 +1660,7 @@ The platform has been intentionally built through progressive releases.
 | **1.9** | Ingress, Host Routing, TLS & HTTPS |
 | **2.0** | Prometheus, Grafana, Dashboards & Alerting |
 | **2.1** | GitHub Actions CI/CD, GHCR Publishing & Release Automation |
+| **2.2** | Infrastructure as Code |
 
 ---
 
@@ -1566,6 +1756,18 @@ CI validates changes and produces an immutable commit-SHA-based container artifa
 
 ---
 
+## Release 2.2
+
+- Terraform
+- Kubernetes resource management
+- Reusable infrastructure modules
+- Remote state
+- Drift detection
+- Infrastructure/application ownership separation
+- CI integration
+
+---
+
 # 📸 Screenshots
 
 The following screenshots will be added as the project evolves.
@@ -1652,6 +1854,7 @@ Current Platform Components
 | Mailpit | ✅ |
 | Grafana Alerting | ✅ |
 | CI & Release Pipeline | ✅ |
+| IaC | ✅ |
 
 These capabilities will continue to evolve as new platform releases are introduced.
 
@@ -1769,9 +1972,7 @@ The release workflow is intentionally separate from CI and is manually initiated
 
 # 🚀 Release 2.2 — Infrastructure as Code
 
-Infrastructure provisioning will be introduced using Terraform.
-
-Planned capabilities include:
+Infrastructure provisioned using Terraform.
 
 - Terraform
 - Kubernetes Resources

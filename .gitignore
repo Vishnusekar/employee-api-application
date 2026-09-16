@@ -1,8 +1,15 @@
 .venv/
 __pycache__
 *.pyc
+
 # Generated Kubernetes manifests
 build/*
 k8s/secret.yaml
 employee-platform/values-local.yaml
 certs/*.key
+
+# Terraform
+infrastructure/terraform/.terraform/
+infrastructure/terraform/*.tfstate
+infrastructure/terraform/*.tfstate.*
+infrastructure/terraform/*.tfvars
