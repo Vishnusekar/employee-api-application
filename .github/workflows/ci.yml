@@ -75,6 +75,8 @@ jobs:
 
       - name: Initialize Terraform
         working-directory: infrastructure/terraform
+        env:
+          TF_TOKEN_app_terraform_io: ${{ secrets.TF_TOKEN_app_terraform_io }}
         run: terraform init -input=false
 
       - name: Validate Terraform
@@ -83,6 +85,8 @@ jobs:
 
       - name: Plan Terraform
         working-directory: infrastructure/terraform
+        env:
+          TF_TOKEN_app_terraform_io: ${{ secrets.TF_TOKEN_app_terraform_io }}
         run: terraform plan -input=false -no-color
 
       - name: Build Docker image
@@ -129,6 +133,8 @@ jobs:
           
       - name: Apply Terraform infrastructure
         working-directory: infrastructure/terraform
+        env:
+          TF_TOKEN_app_terraform_io: ${{ secrets.TF_TOKEN_app_terraform_io }}
         run: terraform apply -input=false -auto-approve
 
       - name: Deploy Helm chart
