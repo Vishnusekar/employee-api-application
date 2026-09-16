@@ -1,4 +1,12 @@
 terraform {
+  cloud {
+    organization = "vishnu-platform"
+
+    workspaces {
+      name = "employee-platform-iac"
+    }
+  }
+
   required_providers {
     kubernetes = {
       source  = "hashicorp/kubernetes"
@@ -15,4 +23,12 @@ variable "kubeconfig_path" {
 
 provider "kubernetes" {
   config_path = var.kubeconfig_path
+}
+
+module "postgres_storage" {
+  source = "./modules/postgres-storage"
+
+  namespace    = kubernetes_namespace.employee.metadata[0].name
+  storage_size = var.postgres_storage_size
+  access_mode  = var.postgres_access_mode
 }
