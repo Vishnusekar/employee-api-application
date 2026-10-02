@@ -1,0 +1,27 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: employee-platform
+  namespace: argocd
+spec:
+  project: default
+
+  sources:
+    - repoURL: git@github.com:vishnusekar/employee-api-application.git
+      targetRevision: feature-2.3-gitops
+      path: employee-platform
+      helm:
+        valueFiles:
+          - $values/gitops/employee-platform/values.yaml
+
+    - repoURL: git@github.com:vishnusekar/employee-api-application.git
+      targetRevision: feature-2.3-gitops
+      ref: values
+      path: .
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: employee
+
+  syncPolicy: {}
+  

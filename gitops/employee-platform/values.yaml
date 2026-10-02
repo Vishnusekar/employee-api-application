@@ -1,0 +1,4 @@
+app:
+  image:
+    repository: ghcr.io/vishnusekar/employee-api
+    tag: "2.2.0"
