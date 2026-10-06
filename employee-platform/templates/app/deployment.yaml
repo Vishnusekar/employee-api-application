@@ -27,7 +27,7 @@ spec:
             - configMapRef:
                 name: {{ printf "%s-config" (include "employee-platform.fullname" .) }}
             - secretRef:
-                name: {{ printf "%s-secret" (include "employee-platform.fullname" .) }}
+                name: {{ default (printf "%s-secret" (include "employee-platform.fullname" .)) .Values.secret.existingSecret }}
           ports:
             - containerPort: {{ .Values.app.image.container.port }}
           resources:

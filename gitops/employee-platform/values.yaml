@@ -2,3 +2,7 @@ app:
   image:
     repository: ghcr.io/vishnusekar/employee-api
     tag: "081902b9e887a754e2609905ce89b9080e54d5d2"
+
+secret:
+  existingSecret: "employee-platform-secret"
+  
