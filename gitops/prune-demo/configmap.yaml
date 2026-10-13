@@ -1,7 +1,0 @@
-apiVersion: v1
-kind: ConfigMap
-metadata:
-  name: prune-demo
-  namespace: gitops-prune-test
-data:
-  message: "Managed by ArgoCD"
