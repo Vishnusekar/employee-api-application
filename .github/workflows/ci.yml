@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - main
-      - release-2.2-iac
+      - feature-2.3-gitops
 
   pull_request:
     branches:
@@ -31,7 +31,7 @@ jobs:
           --health-cmd "pg_isready -U ci_user -d employee"
           --health-interval 5s
           --health-timeout 5s
-          --health-retries 10  
+          --health-retries 10
 
     steps:
       - name: Checkout repository
@@ -83,12 +83,6 @@ jobs:
         working-directory: infrastructure/terraform
         run: terraform validate
 
-      - name: Plan Terraform
-        working-directory: infrastructure/terraform
-        env:
-          TF_TOKEN_app_terraform_io: ${{ secrets.TF_TOKEN_app_terraform_io }}
-        run: terraform plan -input=false -no-color
-
       - name: Build Docker image
         run: |
           docker build \
@@ -130,12 +124,30 @@ jobs:
 
           echo "=== Kubernetes Events ==="
           kubectl get events -A --sort-by=.lastTimestamp
-          
-      - name: Apply Terraform infrastructure
-        working-directory: infrastructure/terraform
-        env:
-          TF_TOKEN_app_terraform_io: ${{ secrets.TF_TOKEN_app_terraform_io }}
-        run: terraform apply -input=false -auto-approve
+
+      - name: Create disposable test namespace and PostgreSQL storage
+        run: |
+          kubectl create namespace employee
+
+          kubectl apply -f - <<'EOF'
+          apiVersion: v1
+          kind: PersistentVolumeClaim
+          metadata:
+            name: postgres-pvc
+            namespace: employee
+          spec:
+            accessModes:
+              - ReadWriteOnce
+            resources:
+              requests:
+                storage: 1Gi
+          EOF
+
+          kubectl wait \
+            --for=jsonpath='{.status.phase}'=Bound \
+            pvc/postgres-pvc \
+            -n employee \
+            --timeout=60s
 
       - name: Deploy Helm chart
         run: |
@@ -149,7 +161,7 @@ jobs:
         id: rollout
         run: |
           kubectl rollout status deployment/employee-platform -n employee --timeout=120s
-        
+
       - name: Rollout failure diagnostics
         if: ${{ failure() && steps.rollout.outcome == 'failure' }}
         run: |
@@ -175,7 +187,7 @@ jobs:
 
           trap 'kill $PORT_FORWARD_PID 2>/dev/null || true' EXIT
 
-          for i in {1..30}; do
+          for _ in {1..30}; do
             if curl --fail http://localhost:8000/health/ready; then
               exit 0
             fi
