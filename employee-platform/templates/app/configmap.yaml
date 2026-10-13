@@ -12,3 +12,4 @@ data:
   DATABASE_HOST: {{ include "employee-platform.postgres.service.fullname" . | quote }}
   DATABASE_PORT: {{ .Values.config.databasePort | quote }}
   DATABASE_NAME: {{ .Values.config.databaseName | quote }}
+  GITOPS_MANAGED: "true"
