@@ -1,7 +1,7 @@
 app:
   image:
     repository: ghcr.io/vishnusekar/employee-api
-    tag: "081902b9e887a754e2609905ce89b9080e54d5d2"
+    tag: "c2b86e8405029cdb6537ff5140dff40e0b0f8ace"
 
 secret:
   existingSecret: "employee-platform-secret"
