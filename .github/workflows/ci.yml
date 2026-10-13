@@ -125,12 +125,6 @@ jobs:
                 storage: 1Gi
           EOF
 
-          kubectl wait \
-            --for=jsonpath='{.status.phase}'=Bound \
-            pvc/postgres-pvc \
-            -n employee \
-            --timeout=60s
-
       - name: Diagnose Kubernetes storage
         if: failure()
         run: |
@@ -148,7 +142,7 @@ jobs:
 
           echo "=== Kubernetes Events ==="
           kubectl get events -A --sort-by=.lastTimestamp
-                      
+
       - name: Deploy Helm chart
         run: |
           helm upgrade --install employee-platform ./employee-platform \
@@ -157,6 +151,16 @@ jobs:
             --set app.image.repository="${IMAGE_NAME%:*}" \
             --set app.image.tag="${IMAGE_NAME##*:}"
 
+      - name: Wait for PostgreSQL storage binding
+        run: |
+          kubectl wait \
+            --for=jsonpath='{.status.phase}'=Bound \
+            pvc/postgres-pvc \
+            -n employee \
+            --timeout=120s
+
+          kubectl get pvc postgres-pvc -n employee
+                      
       - name: Wait for Employee API rollout
         id: rollout
         run: |
