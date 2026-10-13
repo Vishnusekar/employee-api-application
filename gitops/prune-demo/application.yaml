@@ -1,0 +1,21 @@
+apiVersion: argoproj.io/v1alpha1
+kind: Application
+metadata:
+  name: prune-demo
+  namespace: argocd
+spec:
+  project: default
+
+  source:
+    repoURL: git@github.com:vishnusekar/employee-api-application.git
+    targetRevision: feature-2.3-gitops
+    path: gitops/prune-demo
+
+  destination:
+    server: https://kubernetes.default.svc
+    namespace: gitops-prune-test
+
+  syncPolicy:
+    automated:
+      prune: true
+      selfHeal: true
