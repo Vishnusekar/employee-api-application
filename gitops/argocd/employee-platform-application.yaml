@@ -24,5 +24,6 @@ spec:
     namespace: employee
 
   syncPolicy: 
-    automated: {}
+    automated: 
+      selfHeal: true
   
